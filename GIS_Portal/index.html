@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彰化縣日間照顧機構氣候變遷調適決策支援系統</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for premium icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css?v=1.0.0">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Dashboard -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <div class="brand-text">
+                    <h1>彰化縣 GIS 氣候調適</h1>
+                    <span class="sub">日間照顧中心風險套疊分析</span>
+                </div>
+                <div class="mobile-toggle-arrow">
+                    <i class="fa-solid fa-chevron-down" id="mobile-toggle-icon"></i>
+                </div>
+            </div>
+            
+            <div style="padding: 0 16px 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px;">
+                <a href="../index.html" style="color: #94a3b8; text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='#818cf8';" onmouseout="this.style.color='#94a3b8';">
+                    <i class="fa-solid fa-arrow-left"></i> 返回「C.O.O.L. 彰化」成果展示大廳
+                </a>
+            </div>
+            
+            <!-- Statistical Cards -->
+            <section class="stats-section">
+                <div class="stat-card total-centers">
+                    <div class="stat-icon"><i class="fa-solid fa-house-chimney-medical"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">日照/小規機特約單位</span>
+                        <span class="stat-value" id="val-total-centers">88</span>
+                    </div>
+                </div>
+                <div class="stat-card high-risk-centers">
+                    <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">高風險警戒日照 (Lv.4-5)</span>
+                        <span class="stat-value" id="val-high-risk">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Map Control Layer Switcher -->
+            <section class="control-section">
+                <h3 class="section-title"><i class="fa-solid fa-sliders"></i> 圖資切換與情境模擬</h3>
+                
+                <div class="control-group">
+                    <label class="group-label">分析主題</label>
+                    <div class="toggle-buttons" id="theme-selector">
+                        <button class="toggle-btn active" data-theme="flood">
+                            <i class="fa-solid fa-cloud-showers-heavy"></i> 淹水災害
+                        </button>
+                        <button class="toggle-btn" data-theme="temp">
+                            <i class="fa-solid fa-temperature-arrow-up"></i> 高溫風險
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="group-label">氣候情境時間軸</label>
+                    <div class="timeline" id="scenario-selector">
+                        <div class="timeline-track"></div>
+                        <div class="timeline-step active" data-scenario="current" style="left: 0%;">
+                            <span class="step-dot"></span>
+                            <span class="step-label">現況基準 (Baseline)</span>
+                        </div>
+                        <div class="timeline-step" data-scenario="future" style="left: 100%;">
+                            <span class="step-dot"></span>
+                            <span class="step-label">世紀末升溫 1.5°C 情境</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart Section -->
+            <section class="chart-section">
+                <h3 class="section-title"><i class="fa-solid fa-chart-simple"></i> 風險等級分佈統計</h3>
+                <div class="chart-container">
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Data Directory -->
+            <section class="daycare-list-section">
+                <h3 class="section-title"><i class="fa-solid fa-list-check"></i> 本區特約單位列表 <span id="town-selected-name">(全縣)</span></h3>
+                <div class="daycare-list" id="daycare-list-container">
+                    <p class="list-placeholder">請點選地圖行政區，查看該區特約單位...</p>
+                </div>
+            </section>
+
+            <!-- Calibration Panel -->
+            <section class="chart-section" id="calibration-widget" style="margin-top: 15px; padding-bottom: 10px;">
+                <h3 class="section-title"><i class="fa-solid fa-compass"></i> 開發者圖資校正工具</h3>
+                <div class="control-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
+                        經度偏移 (Lon Shift): <span id="val-lon-shift" style="color: #60a5fa; font-family: monospace;">0.00000</span>
+                    </label>
+                    <input type="range" id="slider-lon-shift" min="-0.04" max="0.04" step="0.0001" value="0.0" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="control-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
+                        緯度偏移 (Lat Shift): <span id="val-lat-shift" style="color: #60a5fa; font-family: monospace;">0.00000</span>
+                    </label>
+                    <input type="range" id="slider-lat-shift" min="-0.04" max="0.04" step="0.0001" value="0.0" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="control-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
+                        縮放比例 (Scale): <span id="val-scale" style="color: #60a5fa; font-family: monospace;">1.00000</span>
+                    </label>
+                    <input type="range" id="slider-scale" min="0.95" max="1.05" step="0.0001" value="1.0" style="width: 100%; cursor: pointer;">
+                </div>
+                <div style="font-size: 10px; color: #a1a1aa; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
+                    拖曳滑桿即時平移地圖邊界。<br>
+                    <strong>請協助尋找讓邊界與道路底圖最契合之數值。</strong>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Map Area -->
+        <main class="map-wrapper">
+            <div id="map"></div>
+            
+            <!-- Map Info Widget -->
+            <div class="map-info-widget" id="info-widget">
+                <h4><i class="fa-solid fa-location-crosshairs"></i> 滑鼠懸停行政區資訊</h4>
+                <div id="info-content">
+                    <p class="placeholder">懸停於行政區上以載入氣候風險指標...</p>
+                </div>
+            </div>
+
+            <!-- Overlay Header for Premium branding -->
+            <header class="map-overlay-header">
+                <div class="header-pill">
+                    <span class="indicator-dot active"></span>
+                    <span class="header-title" id="active-scenario-indicator">淹水風險等級套疊 - 現況基準</span>
+                </div>
+            </header>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Chart.js for premium analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- App JS -->
+    <script src="app.js?v=3"></script>
+</body>
+</html>

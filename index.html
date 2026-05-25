@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C.O.O.L. 彰化｜氣候韌性與高齡友善 GIS 圖資展示</title>
+<meta name="description" content="彰化縣氣候風險脆弱度圖資套疊展示，結合高齡友善城市與韌性治理">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--card:#1e293b;
+  --accent:#6366f1;--accent2:#818cf8;--warn:#f59e0b;--danger:#ef4444;--safe:#10b981;
+  --text:#e2e8f0;--muted:#94a3b8;
+  --radius:16px;
+}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);padding:48px 24px 36px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,var(--bg))}
+.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:2px;margin-bottom:8px}
+.hero h1 span{background:linear-gradient(90deg,#c084fc,#818cf8,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{font-size:1rem;color:#c4b5fd;font-weight:300;margin-bottom:6px}
+.hero .badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 16px;font-size:.8rem;color:#e0e7ff;margin-top:12px;backdrop-filter:blur(8px)}
+
+/* Nav tabs */
+.tabs{display:flex;gap:8px;padding:16px 24px;overflow-x:auto;position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid #1e293b}
+.tab{padding:10px 20px;border-radius:999px;border:1px solid #334155;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-family:inherit;white-space:nowrap;transition:all .25s}
+.tab:hover{border-color:var(--accent);color:var(--accent2)}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+
+/* Section */
+.section{display:none;padding:24px;max-width:1200px;margin:0 auto;animation:fadeIn .4s}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.section-title{font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.section-desc{color:var(--muted);font-size:.9rem;line-height:1.7;margin-bottom:24px}
+
+/* Card grid */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid #334155;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(99,102,241,.15)}
+.card img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#0f172a;cursor:pointer;transition:filter .2s}
+.card img:hover{filter:brightness(1.1)}
+.card-body{padding:16px}
+.card-body h3{font-size:1rem;font-weight:600;margin-bottom:6px}
+.card-body p{font-size:.82rem;color:var(--muted);line-height:1.6}
+.tag{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:4px;margin-right:4px;margin-bottom:4px;font-weight:500}
+.tag-danger{background:rgba(239,68,68,.15);color:#fca5a5}
+.tag-warn{background:rgba(245,158,11,.15);color:#fcd34d}
+.tag-info{background:rgba(99,102,241,.15);color:#a5b4fc}
+.tag-safe{background:rgba(16,185,129,.15);color:#6ee7b7}
+
+/* Compare slider */
+.compare{position:relative;width:100%;max-width:800px;margin:0 auto 24px;border-radius:var(--radius);overflow:hidden;border:1px solid #334155;aspect-ratio:4/3;background:#0f172a;touch-action:none}
+.compare img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
+.compare .after{clip-path:inset(0 0 0 50%)}
+.compare .slider{position:absolute;top:0;bottom:0;left:50%;width:4px;background:var(--accent);cursor:ew-resize;z-index:10}
+.compare .slider::after{content:'⟷';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.compare-label{position:absolute;bottom:12px;padding:4px 12px;background:rgba(0,0,0,.7);border-radius:6px;font-size:.75rem;z-index:5;backdrop-filter:blur(4px)}
+.compare-label.left{left:12px}
+.compare-label.right{right:12px}
+
+/* Insight box */
+.insight{background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid #4338ca;border-radius:var(--radius);padding:20px;margin-bottom:24px}
+.insight h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:#c4b5fd}
+.insight p{font-size:.85rem;line-height:1.8;color:#e0e7ff}
+.insight .highlight{color:#fbbf24;font-weight:700}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid #334155}
+.stat .num{font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat .label{font-size:.75rem;color:var(--muted);margin-top:4px}
+
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;justify-content:center;align-items:center;cursor:zoom-out}
+.lightbox.show{display:flex}
+.lightbox img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:8px}
+
+/* Timeline */
+.timeline{position:relative;padding-left:28px;margin-bottom:24px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#334155}
+.tl-item{position:relative;margin-bottom:20px}
+.tl-item::before{content:'';position:absolute;left:-22px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.tl-item h4{font-size:.9rem;font-weight:600;margin-bottom:4px}
+.tl-item p{font-size:.8rem;color:var(--muted);line-height:1.6}
+
+footer{text-align:center;padding:32px;color:#475569;font-size:.75rem;border-top:1px solid #1e293b;margin-top:48px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="sub">115年臺灣健康城市暨高齡友善城市獎｜韌性與創新</div>
+  <h1><span>C.O.O.L. 彰化</span></h1>
+  <p style="color:#a5b4fc;font-size:.9rem">Climate-Oriented Operational Leadership</p>
+  <div class="badge">🗺️ 氣候風險 × 高齡脆弱度 GIS 圖資套疊展示 Demo</div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="overview">📊 總覽</button>
+  <button class="tab" data-tab="elderly">👴 高齡脆弱熱區</button>
+  <button class="tab" data-tab="infra">🌉 維生設施韌性</button>
+  <button class="tab" data-tab="agri">🌾 農業乾旱風險</button>
+  <button class="tab" data-tab="action">🏛️ 智慧治理願景</button>
+</nav>
+
+<!-- ===== 總覽 ===== -->
+<div class="section active" id="overview">
+  <h2 class="section-title">數據驅動：構建高齡韌性的氣候治理基座</h2>
+  <p class="section-desc">彰化縣積極對接 <strong>IPCC AR6 氣候風險評估框架</strong>，透過 GIS 空間技術將 <strong>極端氣候情境</strong> 與 <strong>高齡人口脆弱度指標</strong> 進行深度套疊。<br>這套系統讓調適政策能從傳統的人口統計，轉化為具備「精準治理」能力的空間決策模型。</p>
+
+  <div class="stats">
+    <div class="stat"><div class="num">26</div><div class="label">鄉鎮市區全覆蓋</div></div>
+    <div class="stat"><div class="num">44</div><div class="label">張風險套疊圖</div></div>
+    <div class="stat"><div class="num">10</div><div class="label">種暴露度指標</div></div>
+    <div class="stat"><div class="num">4</div><div class="label">溫升情境模擬</div></div>
+  </div>
+
+  <div class="insight">
+    <h3>💡 核心創新價值</h3>
+    <p>傳統的高齡友善城市建設多憑「人口統計」配資源，但氣候變遷下，<span class="highlight">「住在哪裡」比「有多少人」更重要</span>。<br><br>
+    透過將淹水危害脆弱度（1-5 級）與獨居老人分布進行空間套疊，我們發現：<br>
+    ✦ <span class="highlight">溪湖、員林、花壇、秀水</span> 等鄉鎮同時具備「高淹水風險」與「高獨居老人密度」<br>
+    ✦ 這些鄉鎮在升溫 2°C 情境下，風險等級將從第 3-4 級跳升至 <span class="highlight">第 5 級（最高）</span><br>
+    ✦ 這就是氣候調適必須與高齡友善政策「空間對齊」的科學基礎</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <img src="img/獨居老人vs淹水-現況.png" alt="獨居老人 VS 淹水危害脆弱度（現況）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>獨居老人 VS 淹水危害脆弱度（現況基準）</h3>
+        <p>空間疊圖顯示：彰化市、員林市、鹿港鎮等高齡人口密集區，目前已與中高風險淹水潛勢區高度重疊。</p>
+        <span class="tag tag-danger">社會脆弱度</span><span class="tag tag-info">AR6 現況基準</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="img/獨居老人vs淹水-升溫1.5度.png" alt="獨居老人 VS 淹水危害脆弱度（1.5°C）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>獨居老人 VS 淹水危害脆弱度（升溫 1.5°C）</h3>
+        <p>升溫 1.5°C 情境下，淹水高風險區顯著擴張，覆蓋更多長照據點與獨居長者家戶，展現調適迫切性。</p>
+        <span class="tag tag-danger">高風險</span><span class="tag tag-warn">1.5°C 情境</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 高齡脆弱熱區 ===== -->
+<div class="section" id="elderly">
+  <h2 class="section-title">👴 高齡脆弱熱區：誰最需要氣候保護？</h2>
+  <p class="section-desc">將「獨居老人數量」與「第三型照護案場」套疊在淹水危害脆弱度圖上，揭示氣候風險下的照護缺口。</p>
+
+  <h3 style="font-size:1rem;margin-bottom:12px;color:var(--accent2)">🔀 情境對抗：現況基準 vs 升溫 1.5°C 風險擴張</h3>
+  <div class="compare" id="compare1">
+    <img src="img/獨居老人vs淹水-現況.png" alt="現況" class="before">
+    <img src="img/獨居老人vs淹水-升溫1.5度.png" alt="1.5°C" class="after">
+    <div class="slider"></div>
+    <span class="compare-label left">📍 現況基準</span>
+    <span class="compare-label right">🌡️ 升溫 1.5°C</span>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <img src="img/獨居老人vs淹水-現況.png" alt="獨居老人 VS 淹水危害脆弱度（現況）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>獨居老人 VS 淹水危害脆弱度（現況）</h3>
+        <p>目前彰化市、鹿港、員林等人口密集區已處於中高風險。圖中點位顯示獨居老人高度集中於這些脆弱區域。</p>
+        <span class="tag tag-safe">現況基準</span><span class="tag tag-info">鄉鎮尺度</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="img/獨居老人vs淹水-升溫1.5度.png" alt="獨居老人 VS 淹水危害脆弱度（1.5°C）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>獨居老人 VS 淹水危害脆弱度（升溫 1.5°C）</h3>
+        <p>升溫 1.5°C 情境下，中部鄉鎮風險顯著跳升。這是目前《巴黎協定》控溫目標下，我們必須面對的「底線」衝擊情境。</p>
+        <span class="tag tag-warn">1.5°C 情境</span><span class="tag tag-danger">風險擴張</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="img/elderly_alone_flood_4C.png" alt="獨居老人 VS 淹水脆弱度（4°C）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>獨居老人 VS 淹水危害脆弱度（極端 4°C）</h3>
+        <p>極端升溫情境下，全縣幾乎全面進入最高風險等級。圖資顯示即便是不易淹水的區域，其脆弱度也大幅上升。</p>
+        <span class="tag tag-danger">極端情境</span><span class="tag tag-danger">4°C</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="img/elderly_alone_5km_1_5C.png" alt="獨居老人 VS 5km 網格脆弱度" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>精細定位：獨居老人 × 5km 網格分析</h3>
+        <p>透過更高空間解析度的網格分析，我們可以鎖定村里層級的「具體街道」進行優先佈防。</p>
+        <span class="tag tag-info">5km 網格</span><span class="tag tag-safe">精準治理</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 維生設施 ===== -->
+<div class="section" id="infra">
+  <h2 class="section-title">🌉 維生基礎設施韌性</h2>
+  <p class="section-desc">橋梁、地下道等關鍵設施的分布與淹水脆弱度的套疊分析。高齡者的安全疏散仰賴這些設施的韌性。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <img src="img/bridge_flood_current.png" alt="橋梁 VS 淹水（現況）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>橋梁分布 VS 危害脆弱度（現況）</h3>
+        <p>彰化縣東側八卦山腳與中部平原交界處橋梁密度高，且恰好與第 4-5 級脆弱度區域重疊。</p>
+        <span class="tag tag-info">維生設施</span><span class="tag tag-safe">現況</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="img/bridge_flood_2C.png" alt="橋梁 VS 淹水（2°C）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>橋梁分布 VS 危害脆弱度（2°C）</h3>
+        <p>升溫情境下，西部沿海低窪鄉鎮（芳苑、大城）風險急升，橋梁成為疏散關鍵瓶頸。</p>
+        <span class="tag tag-warn">2°C</span><span class="tag tag-danger">疏散瓶頸</span>
+      </div>
+    </div>
+    <div class="card">
+      <img src="img/underpass_flood_current.png" alt="地下道 VS 淹水" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>地下道分布 VS 危害脆弱度（現況）</h3>
+        <p>地下道在淹水災害中是最危險的設施之一。目前彰化僅有少數地下道，但均位於中高風險區。</p>
+        <span class="tag tag-danger">高危設施</span><span class="tag tag-info">現況</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 農業乾旱 ===== -->
+<div class="section" id="agri">
+  <h2 class="section-title">🌾 農業乾旱風險與生計脆弱度</h2>
+  <p class="section-desc">農業乾旱直接影響農村高齡者的生計安全。流域分布與乾旱風險的套疊揭示「看不見的慢性危機」。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <img src="img/watershed_drought_baseline.png" alt="流域 VS 乾旱（基期）" onclick="openLightbox(this)">
+      <div class="card-body">
+        <h3>流域分布 VS 農業一期乾旱風險（基期）</h3>
+        <p>AR5 RCP8.5 情境。南部鄉鎮（二水、田中、社頭）已處於第 4-5 級乾旱風險，恰為高齡農業鄉鎮。</p>
+        <span class="tag tag-warn">AR5 乾旱</span><span class="tag tag-info">基期</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 智慧治理願景 ===== -->
+<div class="section" id="action">
+  <h2 class="section-title">🏛️ 智慧治理：構建高齡韌性的科學基礎</h2>
+  <p class="section-desc">透過 GIS 空間分析，彰化縣政府將「氣候調適」與「高齡友善」兩大政策維度進行深度整合，實踐精準施政的治理承諾。</p>
+
+  <div class="insight">
+    <h3>🚀 治理模式轉型：從「經驗法則」到「數據驅動」</h3>
+    <p>
+    本計畫不僅是數位地圖的建置，更是行政流程的革新。透過風險圖資的視覺化，我們達成了以下三大治理目標：<br><br>
+    <strong>1. 精準資源投放</strong>：根據 <span class="highlight">「獨居老人 × 高淹水風險」</span> 套疊結果，優先針對溪湖、員林、花壇等熱區進行避災設施升級與長照據點補強，將資源精準配置於最脆弱的角落。<br><br>
+    <strong>2. 科學預警決策</strong>：在極端氣候情境下，民政與社會局處可依據 <span class="highlight">1.5°C/2°C/4°C 溫升模擬圖</span>，預先規劃高風險案場的撤離路徑、緊急物資儲備量，建立具備時間與空間維度的預警機制。<br><br>
+    <strong>3. 跨局處協同治理</strong>：提供工務、農業、社會各處室統一的空間數據基座，確保維生設施韌性與社會照顧體系能「空間對齊」。例如：在加強橋梁與地下道韌性的同時，同步優化鄰近高齡人口區的疏散效率。
+    </p>
+  </div>
+
+  <div style="text-align: center; margin: 32px 0;">
+    <a href="GIS_Portal/index.html" style="text-decoration: none; display: inline-block; padding: 14px 32px; font-size: 1.1rem; font-weight: bold; background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%); color: white; border-radius: 999px; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(99, 102, 241, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(99, 102, 241, 0.4)';">
+      🌐 進入「88處日照中心氣候風險套疊互動決策輔助系統」 ➔
+    </a>
+  </div>
+
+  <div class="card-grid">
+    <div class="card" style="grid-column: 1 / -1; background: linear-gradient(90deg, #1e1b4b, #1e293b);">
+      <div class="card-body" style="text-align: center; padding: 32px;">
+        <h3 style="color:var(--accent2); font-size: 1.2rem;">🌟 未來展望：數據驅動的高齡韌性城市</h3>
+        <p style="max-width: 800px; margin: 12px auto; font-size: 0.9rem;">
+          後續將持續導入即時氣象與感測數據，將靜態圖資升級為動態「氣候韌性治理儀表板」。<br>
+          我們目標將「空間正義」落實在氣候調適政策中，確保每一位彰化長者在變遷的氣候下，都能獲得最堅實的守護。
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<footer>
+  <p>彰化縣政府環境保護局 氣候變遷因應科｜114 年度氣候變遷調適暨綜合管理計畫｜Powered by Antigravity</p>
+</footer>
+
+<script>
+// Tab navigation
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Lightbox
+function openLightbox(img) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightboxImg').src = img.src;
+  lb.classList.add('show');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// Compare slider
+document.querySelectorAll('.compare').forEach(container => {
+  const slider = container.querySelector('.slider');
+  const after = container.querySelector('.after');
+  let isDragging = false;
+
+  function updatePosition(x) {
+    const rect = container.getBoundingClientRect();
+    let pct = ((x - rect.left) / rect.width) * 100;
+    pct = Math.max(2, Math.min(98, pct));
+    slider.style.left = pct + '%';
+    after.style.clipPath = `inset(0 0 0 ${pct}%)`;
+  }
+
+  slider.addEventListener('mousedown', () => isDragging = true);
+  slider.addEventListener('touchstart', () => isDragging = true);
+  document.addEventListener('mouseup', () => isDragging = false);
+  document.addEventListener('touchend', () => isDragging = false);
+  document.addEventListener('mousemove', e => { if (isDragging) { e.preventDefault(); updatePosition(e.clientX); }});
+  document.addEventListener('touchmove', e => { if (isDragging) { e.preventDefault(); updatePosition(e.touches[0].clientX); }}, {passive:false});
+  container.addEventListener('click', e => { if (e.target !== slider) updatePosition(e.clientX); });
+});
+</script>
+</body>
+</html>
