@@ -150,9 +150,15 @@ function applyCalibration() {
 // ==========================================================================
 function getActiveRiskField() {
     if (activeTheme === 'flood') {
+        // Flood supports current and gwl15 (which maps to flood_risk_future)
         return activeScenario === 'current' ? 'flood_risk_current' : 'flood_risk_future';
     } else {
-        return activeScenario === 'current' ? 'temp_risk_current' : 'temp_risk_future';
+        // Temp supports current, gwl15, gwl20, and gwl40
+        if (activeScenario === 'current') return 'temp_risk_current';
+        if (activeScenario === 'gwl15') return 'temp_risk_gwl15';
+        if (activeScenario === 'gwl20') return 'temp_risk_gwl20';
+        if (activeScenario === 'gwl40') return 'temp_risk_gwl40';
+        return 'temp_risk_current';
     }
 }
 
@@ -160,7 +166,11 @@ function getActiveHazardField() {
     if (activeTheme === 'flood') {
         return activeScenario === 'current' ? 'flood_hazard_current' : 'flood_hazard_future';
     } else {
-        return activeScenario === 'current' ? 'temp_hazard_current' : 'temp_hazard_future';
+        if (activeScenario === 'current') return 'temp_hazard_current';
+        if (activeScenario === 'gwl15') return 'temp_hazard_gwl15';
+        if (activeScenario === 'gwl20') return 'temp_hazard_gwl20';
+        if (activeScenario === 'gwl40') return 'temp_hazard_gwl40';
+        return 'temp_hazard_current';
     }
 }
 
@@ -501,7 +511,54 @@ function populateDaycareList() {
 // ==========================================================================
 // UI Event Handlers
 // ==========================================================================
+// ==========================================================================
+// Dynamic Timeline Generator
+// ==========================================================================
+function renderTimelineUI() {
+    const selector = document.getElementById('scenario-selector');
+    if (!selector) return;
+
+    let html = '<div class="timeline-track"></div>';
+    
+    if (activeTheme === 'flood') {
+        const steps = [
+            { id: 'current', label: '現況基準 (Baseline)', left: '0%' },
+            { id: 'gwl15', label: '世紀末升溫 1.5°C 情境', left: '100%' }
+        ];
+        steps.forEach(step => {
+            const isActive = activeScenario === step.id ? 'active' : '';
+            html += `
+                <div class="timeline-step ${isActive}" data-scenario="${step.id}" style="left: ${step.left};">
+                    <span class="step-dot"></span>
+                    <span class="step-label">${step.label}</span>
+                </div>
+            `;
+        });
+    } else {
+        const steps = [
+            { id: 'current', label: '現況基準 (Baseline)', left: '0%' },
+            { id: 'gwl15', label: '升溫 1.5°C', left: '33.33%' },
+            { id: 'gwl20', label: '升溫 2.0°C', left: '66.67%' },
+            { id: 'gwl40', label: '升溫 4.0°C', left: '100%' }
+        ];
+        steps.forEach(step => {
+            const isActive = activeScenario === step.id ? 'active' : '';
+            html += `
+                <div class="timeline-step ${isActive}" data-scenario="${step.id}" style="left: ${step.left};">
+                    <span class="step-dot"></span>
+                    <span class="step-label">${step.label}</span>
+                </div>
+            `;
+        });
+    }
+
+    selector.innerHTML = html;
+}
+
 function setupUIControls() {
+    // Initial timeline render
+    renderTimelineUI();
+
     // 1. Theme (Flooding vs Temperature) Switcher
     const themeButtons = document.querySelectorAll('#theme-selector .toggle-btn');
     themeButtons.forEach(btn => {
@@ -512,6 +569,16 @@ function setupUIControls() {
             
             activeTheme = targetBtn.dataset.theme;
             
+            // Safety scenario shift when switching themes
+            if (activeTheme === 'flood') {
+                if (activeScenario !== 'current' && activeScenario !== 'gwl15') {
+                    activeScenario = 'current';
+                }
+            }
+            
+            // Redraw timeline steps
+            renderTimelineUI();
+            
             updateHeaderIndicator();
             updateLayers();
             updateStatsAndChart();
@@ -519,22 +586,24 @@ function setupUIControls() {
         });
     });
 
-    // 2. Timeline Step Switcher
-    const timelineSteps = document.querySelectorAll('#scenario-selector .timeline-step');
-    timelineSteps.forEach(step => {
-        step.addEventListener('click', (e) => {
-            const targetStep = e.currentTarget;
-            timelineSteps.forEach(s => s.classList.remove('active'));
-            targetStep.classList.add('active');
-            
-            activeScenario = targetStep.dataset.scenario;
-            
-            updateHeaderIndicator();
-            updateLayers();
-            updateStatsAndChart();
-            populateDaycareList();
+    // 2. Timeline Step Switcher via Event Delegation
+    const selector = document.getElementById('scenario-selector');
+    if (selector) {
+        selector.addEventListener('click', (e) => {
+            const stepElement = e.target.closest('.timeline-step');
+            if (stepElement) {
+                activeScenario = stepElement.dataset.scenario;
+                
+                // Update active state in UI
+                renderTimelineUI();
+                
+                updateHeaderIndicator();
+                updateLayers();
+                updateStatsAndChart();
+                populateDaycareList();
+            }
         });
-    });
+    }
 
     // 3. Calibration Sliders Listener
     const lonSlider = document.getElementById('slider-lon-shift');
@@ -573,7 +642,16 @@ function updateHeaderIndicator() {
     const indicator = document.getElementById('active-scenario-indicator');
     
     const themeName = activeTheme === 'flood' ? '淹水風險等級' : '高溫風險等級';
-    const scenarioName = activeScenario === 'current' ? '現況基準' : '升溫 1.5°C 情境推估';
+    let scenarioName = '現況基準';
+    if (activeScenario === 'gwl15') {
+        scenarioName = '升溫 1.5°C 情境推估';
+    } else if (activeScenario === 'gwl20') {
+        scenarioName = '升溫 2.0°C 情境推估';
+    } else if (activeScenario === 'gwl40') {
+        scenarioName = '升溫 4.0°C 情境推估';
+    } else if (activeScenario === 'future') {
+        scenarioName = '升溫 1.5°C 情境推估';
+    }
     
     indicator.innerText = `${themeName}套疊 - ${scenarioName}`;
 }
