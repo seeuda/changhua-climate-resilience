@@ -22,6 +22,8 @@
     --primary: #6366f1;
     --primary-glow: rgba(99, 102, 241, 0.4);
     --secondary: #10b981;
+    --control-active-text: #ffffff;
+    --timeline-track: rgba(148, 163, 184, 0.38);
 
     /* Risk Color Scale (Curated Palette) */
     --risk-1: #10b981; /* Low: Emerald Green */
@@ -52,6 +54,8 @@
     --primary: #4f46e5;
     --primary-glow: rgba(79, 70, 229, 0.24);
     --secondary: #059669;
+    --control-active-text: #ffffff;
+    --timeline-track: #94a3b8;
 }
 
 :root[data-color-theme="print"] {
@@ -71,6 +75,8 @@
     --primary: #1d4ed8;
     --primary-glow: rgba(29, 78, 216, 0.18);
     --secondary: #047857;
+    --control-active-text: #ffffff;
+    --timeline-track: #9ca3af;
 }
 
 /* ==========================================================================
@@ -305,7 +311,7 @@ body, html {
 
 .toggle-btn.active {
     background: var(--primary);
-    color: var(--text-primary);
+    color: var(--control-active-text);
     box-shadow: 0 4px 10px var(--primary-glow);
 }
 
@@ -328,7 +334,7 @@ body, html {
     left: 10px;
     right: 10px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--timeline-track);
     border-radius: 2px;
     z-index: 1;
 }
@@ -914,6 +920,8 @@ body, html {
         --text-muted: #6b7280;
         --primary: #1d4ed8;
         --secondary: #047857;
+        --control-active-text: #ffffff;
+        --timeline-track: #9ca3af;
     }
 
     body, html {

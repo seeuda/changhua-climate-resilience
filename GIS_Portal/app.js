@@ -68,15 +68,12 @@ const mapTileThemes = {
         base: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
         labels: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'
     },
-    print: {
-        base: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-        labels: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'
-    }
 };
 
 function getSavedColorTheme() {
     try {
-        return window.localStorage.getItem('cool-color-theme') || 'dark';
+        const theme = window.localStorage.getItem('cool-color-theme');
+        return theme === 'light' || theme === 'dark' ? theme : 'dark';
     } catch (error) {
         return 'dark';
     }
@@ -108,7 +105,7 @@ function updateChartTheme() {
 }
 
 function applyColorTheme(theme) {
-    const nextTheme = mapTileThemes[theme] ? theme : 'dark';
+    const nextTheme = theme === 'light' || theme === 'dark' ? theme : 'dark';
     document.documentElement.dataset.colorTheme = nextTheme;
     saveColorTheme(nextTheme);
 
