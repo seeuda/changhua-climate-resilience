@@ -888,7 +888,7 @@ function renderTimelineUI() {
         } else {
             const steps = [
                 { id: 'current', label: '現況基準', left: '0%' },
-                { id: 'gwl15', label: '世紀末升溫 1.5°C 情境', left: '100%' }
+                { id: 'gwl15', label: '升溫 1.5°C', left: '100%' }
             ];
             steps.forEach(step => {
                 const isActive = activeScenario === step.id ? 'active' : '';
