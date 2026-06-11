@@ -1271,11 +1271,11 @@ function updateLegendUI() {
     const riskLegend = `
         <div class="legend-title">綜合風險指標等級</div>
         <div class="legend-scale">
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[1]}"></span> <span>第 1 級 (Level 1)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[2]}"></span> <span>第 2 級 (Level 2)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[3]}"></span> <span>第 3 級 (Level 3)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[4]}"></span> <span>第 4 級 (Level 4)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[5]}"></span> <span>第 5 級 (Level 5)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[1]}"></span> <span>第 1 級</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[2]}"></span> <span>第 2 級</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[3]}"></span> <span>第 3 級</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[4]}"></span> <span>第 4 級 </span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[5]}"></span> <span>第 5 級 </span></div>
         </div>
     `;
 
