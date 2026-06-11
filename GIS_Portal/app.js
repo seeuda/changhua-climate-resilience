@@ -14,6 +14,7 @@ let riskChart = null;
 let activeTheme = 'flood'; // 'flood' or 'temp'
 let activeScenario = 'current'; // 'current', 'gwl15', 'gwl20', 'gwl40'
 let activeFloodLayers = { ncdr: true, wra: false }; // flood overlays can be combined
+let activeWraScenario = 'gwl15'; // 'gwl15' = 350mm/24HR, 'gwl20' = 650mm/24HR
 let ncdrRiskOpacity = 0.7;
 let selectedTown = null; // Filter daycare list
 
@@ -36,6 +37,14 @@ function getActiveFloodLayerNames() {
     if (activeFloodLayers.ncdr) names.push('NCDR 鄉鎮風險');
     if (activeFloodLayers.wra) names.push('水利署潛勢圖');
     return names;
+}
+
+function getActiveWraScenario() {
+    return activeFloodLayers.wra && !activeFloodLayers.ncdr ? activeScenario : activeWraScenario;
+}
+
+function getWraScenarioName() {
+    return getActiveWraScenario() === 'gwl20' ? '650mm / 24HR 極端降雨' : '350mm / 24HR 暴雨模擬';
 }
 
 function getTownRiskFillOpacity() {
@@ -185,7 +194,7 @@ function applyCalibration() {
     // Transform WRA GeoJSON if active and loaded
     activeWraData = null;
     if (isWraLayerEnabled()) {
-        const originalWra = activeScenario === 'gwl20' ? wraGeoJson650 : wraGeoJson350;
+        const originalWra = getActiveWraScenario() === 'gwl20' ? wraGeoJson650 : wraGeoJson350;
         if (originalWra) {
             activeWraData = JSON.parse(JSON.stringify(originalWra));
             activeWraData.features.forEach(f => {
@@ -861,7 +870,7 @@ function renderTimelineUI() {
                 { id: 'gwl20', label: '650mm / 24HR 極端降雨', left: '100%' }
             ];
             steps.forEach(step => {
-                const isActive = activeScenario === step.id ? 'active' : '';
+                const isActive = getActiveWraScenario() === step.id ? 'active' : '';
                 html += `
                     <div class="timeline-step ${isActive}" data-scenario="${step.id}" style="left: ${step.left};">
                         <span class="step-dot"></span>
@@ -950,7 +959,7 @@ function setupUIControls() {
             }
             
             if (isWraLayerEnabled()) {
-                loadWraData(activeScenario, () => {
+                loadWraData(getActiveWraScenario(), () => {
                     renderTimelineUI();
                     updateHeaderIndicator();
                     applyCalibration();
@@ -997,7 +1006,7 @@ function setupUIControls() {
             }
 
             if (isWraLayerEnabled()) {
-                loadWraData(activeScenario, () => {
+                loadWraData(getActiveWraScenario(), () => {
                     renderTimelineUI();
                     updateHeaderIndicator();
                     applyCalibration();
@@ -1016,10 +1025,15 @@ function setupUIControls() {
         selector.addEventListener('click', (e) => {
             const stepElement = e.target.closest('.timeline-step');
             if (stepElement) {
-                activeScenario = stepElement.dataset.scenario;
+                const nextScenario = stepElement.dataset.scenario;
+                activeScenario = nextScenario;
+
+                if (activeTheme === 'flood' && activeFloodLayers.wra && !activeFloodLayers.ncdr) {
+                    activeWraScenario = nextScenario;
+                }
                 
                 if (isWraLayerEnabled()) {
-                    loadWraData(activeScenario, () => {
+                    loadWraData(getActiveWraScenario(), () => {
                         renderTimelineUI();
                         updateHeaderIndicator();
                         applyCalibration();
@@ -1083,7 +1097,7 @@ function updateHeaderIndicator() {
 
     let scenarioName = '現況基準';
     if (isWraLayerEnabled() && !activeFloodLayers.ncdr) {
-        scenarioName = activeScenario === 'gwl20' ? '650mm / 24HR 極端降雨' : '350mm / 24HR 暴雨模擬';
+        scenarioName = getWraScenarioName();
     } else {
         if (activeScenario === 'gwl15') {
             scenarioName = '升溫 1.5°C 情境推估';
@@ -1093,6 +1107,10 @@ function updateHeaderIndicator() {
             scenarioName = '升溫 4.0°C 情境推估';
         } else if (activeScenario === 'future') {
             scenarioName = '升溫 1.5°C 情境推估';
+        }
+
+        if (isWraLayerEnabled()) {
+            scenarioName += `；水利署 ${getWraScenarioName()}`;
         }
     }
     
