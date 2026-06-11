@@ -854,7 +854,7 @@ function populateDaycareList() {
         let warningTag = '';
         const isFlooded = daycareIntersectResults[props.name];
         if (activeTheme === 'flood' && activeFloodLayers.wra && isFlooded) {
-            warningTag = `<span class="item-tag tag-warning" style="background:#ef4444; color:white;"><i class="fa-solid fa-triangle-exclamation"></i> 淹水警戒: ${isFlooded}m</span>`;
+            warningTag = `<span class="item-tag tag-warning"><i class="fa-solid fa-triangle-exclamation"></i> 淹水警戒: ${isFlooded}m</span>`;
         }
 
         const card = document.createElement('div');

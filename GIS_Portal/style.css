@@ -24,6 +24,15 @@
     --secondary: #10b981;
     --control-active-text: #ffffff;
     --timeline-track: rgba(148, 163, 184, 0.38);
+    --tag-case-bg: rgba(99, 102, 241, 0.15);
+    --tag-case-text: #a5b4fc;
+    --tag-case-border: rgba(165, 180, 252, 0.18);
+    --tag-service-bg: rgba(16, 185, 129, 0.15);
+    --tag-service-text: #a7f3d0;
+    --tag-service-border: rgba(167, 243, 208, 0.18);
+    --tag-warning-bg: #ef4444;
+    --tag-warning-text: #ffffff;
+    --tag-warning-border: rgba(255, 255, 255, 0.2);
 
     /* Risk Color Scale (Curated Palette) */
     --risk-1: #10b981; /* Low: Emerald Green */
@@ -56,6 +65,15 @@
     --secondary: #059669;
     --control-active-text: #ffffff;
     --timeline-track: #94a3b8;
+    --tag-case-bg: #e0e7ff;
+    --tag-case-text: #3730a3;
+    --tag-case-border: #c7d2fe;
+    --tag-service-bg: #d1fae5;
+    --tag-service-text: #047857;
+    --tag-service-border: #a7f3d0;
+    --tag-warning-bg: #dc2626;
+    --tag-warning-text: #ffffff;
+    --tag-warning-border: #b91c1c;
 }
 
 :root[data-color-theme="print"] {
@@ -77,6 +95,7 @@
     --secondary: #047857;
     --control-active-text: #ffffff;
     --timeline-track: #9ca3af;
+    /* Tag print colors live in @media print because runtime themes only use dark/light. */
 }
 
 /* ==========================================================================
@@ -585,18 +604,28 @@ body, html {
 .item-tag {
     font-size: 10px;
     padding: 2px 6px;
+    border: 1px solid transparent;
     border-radius: 4px;
-    font-weight: 500;
+    font-weight: 700;
+    line-height: 1.25;
 }
 
 .tag-case {
-    background: rgba(99, 102, 241, 0.15);
-    color: #a5b4fc;
+    background: var(--tag-case-bg);
+    border-color: var(--tag-case-border);
+    color: var(--tag-case-text);
 }
 
 .tag-service {
-    background: rgba(16, 185, 129, 0.15);
-    color: #a7f3d0;
+    background: var(--tag-service-bg);
+    border-color: var(--tag-service-border);
+    color: var(--tag-service-text);
+}
+
+.tag-warning {
+    background: var(--tag-warning-bg);
+    border-color: var(--tag-warning-border);
+    color: var(--tag-warning-text);
 }
 
 .daycare-item-detail {
@@ -922,6 +951,15 @@ body, html {
         --secondary: #047857;
         --control-active-text: #ffffff;
         --timeline-track: #9ca3af;
+        --tag-case-bg: #e0e7ff;
+        --tag-case-text: #3730a3;
+        --tag-case-border: #c7d2fe;
+        --tag-service-bg: #d1fae5;
+        --tag-service-text: #047857;
+        --tag-service-border: #a7f3d0;
+        --tag-warning-bg: #dc2626;
+        --tag-warning-text: #ffffff;
+        --tag-warning-border: #b91c1c;
     }
 
     body, html {
