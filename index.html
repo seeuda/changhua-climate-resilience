@@ -10,7 +10,8 @@
 (function(){
   function getStoredTheme() {
     try {
-      return window.localStorage.getItem('cool-color-theme');
+      const theme = window.localStorage.getItem('cool-color-theme');
+      return theme === 'light' || theme === 'dark' ? theme : null;
     } catch (error) {
       return null;
     }
@@ -28,7 +29,7 @@
   --hero-bg:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);
   --hero-sub:#c4b5fd;--hero-badge-bg:rgba(255,255,255,.12);--hero-badge-border:rgba(255,255,255,.2);--hero-badge-text:#e0e7ff;
   --insight-bg:linear-gradient(135deg,#1e1b4b,#312e81);--insight-border:#4338ca;--insight-heading:#c4b5fd;--insight-text:#e0e7ff;
-  --shadow-accent:rgba(99,102,241,.15);--radius:16px;
+  --shadow-accent:rgba(99,102,241,.15);--radius:16px;--control-active-text:#fff;
 }
 :root[data-color-theme="light"]{
   color-scheme:light;
@@ -36,13 +37,13 @@
   --accent:#4f46e5;--accent2:#2563eb;--hero-bg:linear-gradient(135deg,#eef2ff 0%,#dbeafe 48%,#ecfeff 100%);
   --hero-sub:#3730a3;--hero-badge-bg:rgba(255,255,255,.72);--hero-badge-border:rgba(79,70,229,.18);--hero-badge-text:#1e1b4b;
   --insight-bg:linear-gradient(135deg,#eef2ff,#e0f2fe);--insight-border:#bfdbfe;--insight-heading:#3730a3;--insight-text:#1e293b;
-  --shadow-accent:rgba(79,70,229,.12);
+  --shadow-accent:rgba(79,70,229,.12);--control-active-text:#fff;
 }
 :root[data-color-theme="print"]{
   color-scheme:light;
   --bg:#ffffff;--surface:#ffffff;--card:#ffffff;--text:#111827;--muted:#374151;--border:#d1d5db;--image-bg:#ffffff;
   --accent:#1d4ed8;--accent2:#0f766e;--hero-bg:#ffffff;--hero-sub:#374151;--hero-badge-bg:#ffffff;--hero-badge-border:#d1d5db;--hero-badge-text:#111827;
-  --insight-bg:#ffffff;--insight-border:#d1d5db;--insight-heading:#111827;--insight-text:#111827;--shadow-accent:rgba(0,0,0,.06);
+  --insight-bg:#ffffff;--insight-border:#d1d5db;--insight-heading:#111827;--insight-text:#111827;--shadow-accent:rgba(0,0,0,.06);--control-active-text:#fff;
 }
 body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .2s,color .2s}
 
@@ -53,12 +54,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .hero h1 span{background:linear-gradient(90deg,#c084fc,#818cf8,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero .sub{font-size:1rem;color:var(--hero-sub);font-weight:300;margin-bottom:6px}
 .hero .badge{display:inline-block;background:var(--hero-badge-bg);border:1px solid var(--hero-badge-border);border-radius:999px;padding:4px 16px;font-size:.8rem;color:var(--hero-badge-text);margin-top:12px;backdrop-filter:blur(8px)}
+.hero-theme-picker{position:relative;z-index:1;margin:18px auto 0;display:inline-flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;border:1px solid var(--hero-badge-border);border-radius:999px;background:var(--hero-badge-bg);color:var(--hero-badge-text);font-size:.85rem;backdrop-filter:blur(8px)}
+.hero-theme-picker select{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:7px 30px 7px 12px;cursor:pointer}
 
 /* Nav tabs */
 .tabs{display:flex;gap:8px;padding:16px 24px;overflow-x:auto;position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);align-items:center}
 .tab{padding:10px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-family:inherit;white-space:nowrap;transition:all .25s}
 .tab:hover{border-color:var(--accent);color:var(--accent2)}
-.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.tab.active{background:var(--accent);border-color:var(--accent);color:var(--control-active-text);font-weight:500}
 
 /* Section */
 .section{display:none;padding:24px;max-width:1200px;margin:0 auto;animation:fadeIn .4s}
@@ -128,10 +131,10 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
 .theme-picker select{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 32px 8px 12px;cursor:pointer}
 :root[data-color-theme="print"] .hero h1 span{-webkit-text-fill-color:currentColor;background:none;color:var(--text)}
 :root[data-color-theme="print"] .card:hover{transform:none;box-shadow:none}
-@media (max-width:760px){.theme-picker{margin-left:0;width:100%;justify-content:flex-start}.theme-picker select{flex:1}}
+@media (max-width:760px){.theme-picker{margin-left:0;width:100%;justify-content:flex-start}.theme-picker select{flex:1}.hero-theme-picker{width:100%;max-width:340px;justify-content:space-between}.hero-theme-picker select{flex:1}}
 @media print{
   :root{color-scheme:light;--bg:#fff;--surface:#fff;--card:#fff;--text:#111827;--muted:#374151;--border:#d1d5db;--image-bg:#fff;--accent:#1d4ed8;--accent2:#0f766e;--hero-bg:#fff;--hero-sub:#374151;--hero-badge-bg:#fff;--hero-badge-border:#d1d5db;--hero-badge-text:#111827;--insight-bg:#fff;--insight-border:#d1d5db;--insight-heading:#111827;--insight-text:#111827;--shadow-accent:rgba(0,0,0,0)}
-  .tabs,.theme-picker,.lightbox{display:none!important}.hero{padding:24px 16px}.hero::after{display:none}.section{display:block!important;page-break-inside:auto}.card,.insight,.stat{break-inside:avoid;box-shadow:none!important}.card:hover{transform:none}body{background:#fff!important;color:#111827!important}
+  .tabs,.theme-picker,.hero-theme-picker,.lightbox{display:none!important}.hero{padding:24px 16px}.hero::after{display:none}.section{display:block!important;page-break-inside:auto}.card,.insight,.stat{break-inside:avoid;box-shadow:none!important}.card:hover{transform:none}body{background:#fff!important;color:#111827!important}
 }
 </style>
 </head>
@@ -140,8 +143,14 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
 <header class="hero">
   <div class="sub"></div>
   <h1><span>C.O.O.L. 彰化</span></h1>
-  <p style="color:#a5b4fc;font-size:.9rem">Climate-Oriented Operational Leadership</p>
+  <p style="color:var(--hero-sub);font-size:.9rem">Climate-Oriented Operational Leadership</p>
   <div class="badge">🗺️ 氣候風險 × 高齡脆弱度 GIS 圖資套疊展示 Demo</div>
+  <label class="hero-theme-picker">🎨 色彩佈景
+    <select class="color-theme-select" aria-label="在首頁選擇色彩佈景主題">
+      <option value="dark">深色展示</option>
+      <option value="light">亮色閱讀</option>
+    </select>
+  </label>
 </header>
 
 <nav class="tabs" id="tabs">
@@ -150,11 +159,10 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
   <button class="tab" data-tab="infra">🌉 維生設施韌性</button>
   <button class="tab" data-tab="agri">🌾 農業乾旱風險</button>
   <button class="tab" data-tab="action">🏛️ 智慧治理願景</button>
-  <label class="theme-picker" for="colorThemeSelect">🎨 佈景主題
-    <select id="colorThemeSelect" aria-label="選擇色彩佈景主題">
+  <label class="theme-picker">🎨 佈景主題
+    <select class="color-theme-select" aria-label="在導覽列選擇色彩佈景主題">
       <option value="dark">深色展示</option>
       <option value="light">亮色閱讀</option>
-      <option value="print">列印省墨</option>
     </select>
   </label>
 </nav>
@@ -345,10 +353,11 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
 
 <script>
 // Color theme switcher
-const colorThemeSelect = document.getElementById('colorThemeSelect');
+const colorThemeSelects = document.querySelectorAll('.color-theme-select');
 function getStoredColorTheme() {
   try {
-    return window.localStorage.getItem('cool-color-theme');
+    const theme = window.localStorage.getItem('cool-color-theme');
+    return theme === 'light' || theme === 'dark' ? theme : null;
   } catch (error) {
     return null;
   }
@@ -361,14 +370,15 @@ function storeColorTheme(theme) {
   }
 }
 function setColorTheme(theme) {
-  document.documentElement.dataset.colorTheme = theme;
-  storeColorTheme(theme);
-  if (colorThemeSelect) colorThemeSelect.value = theme;
+  const nextTheme = theme === 'light' || theme === 'dark' ? theme : 'dark';
+  document.documentElement.dataset.colorTheme = nextTheme;
+  storeColorTheme(nextTheme);
+  colorThemeSelects.forEach((select) => { select.value = nextTheme; });
 }
 setColorTheme(getStoredColorTheme() || 'dark');
-if (colorThemeSelect) {
-  colorThemeSelect.addEventListener('change', (event) => setColorTheme(event.target.value));
-}
+colorThemeSelects.forEach((select) => {
+  select.addEventListener('change', (event) => setColorTheme(event.target.value));
+});
 
 // Tab navigation
 document.querySelectorAll('.tab').forEach(tab => {

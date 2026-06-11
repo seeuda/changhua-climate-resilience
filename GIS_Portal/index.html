@@ -20,7 +20,8 @@
         (function(){
             function getStoredTheme() {
                 try {
-                    return window.localStorage.getItem('cool-color-theme');
+                    const theme = window.localStorage.getItem('cool-color-theme');
+                    return theme === 'light' || theme === 'dark' ? theme : null;
                 } catch (error) {
                     return null;
                 }
@@ -56,11 +57,10 @@
             <!-- Color Theme Control -->
             <section class="control-section theme-control-section">
                 <h3 class="section-title"><i class="fa-solid fa-palette"></i> 色彩佈景主題</h3>
-                <label class="group-label" for="color-theme-select">選擇顯示／列印配色</label>
+                <label class="group-label" for="color-theme-select">選擇顯示配色</label>
                 <select id="color-theme-select" class="theme-select" aria-label="選擇色彩佈景主題">
                     <option value="dark">深色展示</option>
                     <option value="light">亮色閱讀</option>
-                    <option value="print">列印省墨</option>
                 </select>
             </section>
 
