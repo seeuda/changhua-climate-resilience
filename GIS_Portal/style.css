@@ -2,33 +2,75 @@
    Design System & Styling Variables
    ========================================================================== */
 :root {
+    color-scheme: dark;
     /* Color Palette */
     --bg-app: #0b0f19;
     --bg-sidebar: rgba(15, 23, 42, 0.85);
     --bg-card: rgba(30, 41, 59, 0.5);
     --bg-hover: rgba(51, 65, 85, 0.4);
-    
+    --control-track-bg: rgba(15, 23, 42, 0.5);
+    --panel-shadow: rgba(0, 0, 0, 0.3);
+    --subtle-divider: rgba(255, 255, 255, 0.1);
+
     --border-color: rgba(255, 255, 255, 0.08);
     --border-highlight: rgba(99, 102, 241, 0.3);
-    
+
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    
+
     --primary: #6366f1;
     --primary-glow: rgba(99, 102, 241, 0.4);
     --secondary: #10b981;
-    
+
     /* Risk Color Scale (Curated Palette) */
     --risk-1: #10b981; /* Low: Emerald Green */
     --risk-2: #84cc16; /* Low-Med: Lime Green */
     --risk-3: #eab308; /* Med: Amber Yellow */
     --risk-4: #f97316; /* Med-High: Orange */
     --risk-5: #ef4444; /* High: Soft Red */
-    
+
     /* Typography */
     --font-heading: 'Outfit', 'Noto Sans TC', sans-serif;
     --font-body: 'Inter', 'Noto Sans TC', sans-serif;
+}
+
+:root[data-color-theme="light"] {
+    color-scheme: light;
+    --bg-app: #eef2f7;
+    --bg-sidebar: rgba(255, 255, 255, 0.92);
+    --bg-card: rgba(255, 255, 255, 0.82);
+    --bg-hover: rgba(226, 232, 240, 0.8);
+    --control-track-bg: rgba(226, 232, 240, 0.85);
+    --panel-shadow: rgba(15, 23, 42, 0.14);
+    --subtle-divider: rgba(15, 23, 42, 0.12);
+    --border-color: rgba(15, 23, 42, 0.14);
+    --border-highlight: rgba(79, 70, 229, 0.32);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --primary: #4f46e5;
+    --primary-glow: rgba(79, 70, 229, 0.24);
+    --secondary: #059669;
+}
+
+:root[data-color-theme="print"] {
+    color-scheme: light;
+    --bg-app: #ffffff;
+    --bg-sidebar: rgba(255, 255, 255, 0.96);
+    --bg-card: rgba(255, 255, 255, 0.94);
+    --bg-hover: #f3f4f6;
+    --control-track-bg: #f3f4f6;
+    --panel-shadow: rgba(0, 0, 0, 0.08);
+    --subtle-divider: #d1d5db;
+    --border-color: #d1d5db;
+    --border-highlight: #9ca3af;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    --primary: #1d4ed8;
+    --primary-glow: rgba(29, 78, 216, 0.18);
+    --secondary: #047857;
 }
 
 /* ==========================================================================
@@ -72,7 +114,7 @@ body, html {
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 1000;
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 10px 0 30px var(--panel-shadow);
 }
 
 .brand {
@@ -233,7 +275,7 @@ body, html {
 .toggle-buttons {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--control-track-bg);
     border-radius: 10px;
     padding: 4px;
     border: 1px solid var(--border-color);
@@ -306,9 +348,9 @@ body, html {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #1e293b;
+    background: var(--bg-card);
     border: 3px solid var(--border-color);
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 4px var(--panel-shadow);
     display: block;
     transition: all 0.3s ease;
 }
@@ -458,13 +500,13 @@ body, html {
 .calibration-control-label {
     display: block;
     font-size: 11px;
-    color: #e4e4e7;
+    color: var(--text-primary);
     margin-bottom: 4px;
     font-weight: 500;
 }
 
 .calibration-value {
-    color: #60a5fa;
+    color: var(--primary);
     font-family: monospace;
 }
 
@@ -475,9 +517,9 @@ body, html {
 
 .calibration-help {
     font-size: 10px;
-    color: #a1a1aa;
+    color: var(--text-secondary);
     line-height: 1.4;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid var(--subtle-divider);
     padding-top: 6px;
 }
 
@@ -503,7 +545,7 @@ body, html {
 }
 
 .daycare-item-card {
-    background: rgba(15, 23, 42, 0.4);
+    background: var(--control-track-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 12px;
@@ -592,11 +634,11 @@ body, html {
     border: 1px solid var(--border-color) !important;
     border-radius: 8px !important;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 4px 12px var(--panel-shadow) !important;
 }
 
 .leaflet-bar a {
-    background-color: #1e293b !important;
+    background-color: var(--bg-card) !important;
     color: var(--text-primary) !important;
     border-bottom: 1px solid var(--border-color) !important;
     transition: all 0.2s ease;
@@ -616,7 +658,7 @@ body, html {
 }
 
 .header-pill {
-    background: rgba(15, 23, 42, 0.85);
+    background: var(--bg-sidebar);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-color);
     border-radius: 20px;
@@ -624,7 +666,7 @@ body, html {
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px var(--panel-shadow);
 }
 
 .indicator-dot {
@@ -657,13 +699,13 @@ body, html {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(15, 23, 42, 0.85);
+    background: var(--bg-sidebar);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 16px;
     width: 280px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px var(--panel-shadow);
     z-index: 999;
     pointer-events: none;
 }
@@ -729,14 +771,14 @@ body, html {
 
 /* Floating Map Legend (Leaflet Overlay Control) */
 .map-legend {
-    background: rgba(15, 23, 42, 0.85) !important;
+    background: var(--bg-sidebar) !important;
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-color) !important;
     border-radius: 12px;
     padding: 12px 16px;
     color: var(--text-primary);
     line-height: 1.4;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 10px 25px var(--panel-shadow) !important;
 }
 
 .legend-title {
@@ -770,17 +812,17 @@ body, html {
 
 /* Leaflet Custom Popups Style */
 .leaflet-popup-content-wrapper {
-    background: rgba(15, 23, 42, 0.9) !important;
+    background: var(--bg-sidebar) !important;
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     color: var(--text-primary) !important;
     border-radius: 12px !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 10px 25px var(--panel-shadow) !important;
     padding: 4px;
 }
 
 .leaflet-popup-tip {
-    background: rgba(15, 23, 42, 0.9) !important;
+    background: var(--bg-sidebar) !important;
     border: 1px solid var(--border-color);
 }
 
@@ -837,6 +879,76 @@ body, html {
     pointer-events: none !important;
 }
 
+
+/* Color theme controls */
+.theme-control-section {
+    gap: 10px;
+}
+
+.theme-select {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--control-track-bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+@media print {
+    :root {
+        color-scheme: light;
+        --bg-app: #ffffff;
+        --bg-sidebar: #ffffff;
+        --bg-card: #ffffff;
+        --bg-hover: #f3f4f6;
+        --control-track-bg: #f3f4f6;
+        --panel-shadow: rgba(0, 0, 0, 0);
+        --subtle-divider: #d1d5db;
+        --border-color: #d1d5db;
+        --border-highlight: #9ca3af;
+        --text-primary: #111827;
+        --text-secondary: #374151;
+        --text-muted: #6b7280;
+        --primary: #1d4ed8;
+        --secondary: #047857;
+    }
+
+    body, html {
+        background: #ffffff !important;
+        overflow: visible !important;
+    }
+
+    .app-container {
+        display: block;
+        height: auto;
+        width: 100%;
+    }
+
+    .sidebar {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        box-shadow: none !important;
+        border-right: 0;
+        backdrop-filter: none;
+    }
+
+    .map-wrapper {
+        height: 72vh;
+        min-height: 520px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .theme-control-section,
+    .calibration-widget,
+    .mobile-toggle-arrow {
+        display: none !important;
+    }
+}
+
 /* ==========================================================================
    Responsive Design for Mobile Devices (RWD)
    ========================================================================== */
@@ -860,7 +972,7 @@ body, html {
         border-radius: 20px 20px 0 0 !important;
         transform: translateY(0);
         transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4) !important;
+        box-shadow: 0 -10px 30px var(--panel-shadow) !important;
         padding: 16px 20px 24px 20px !important;
     }
 
