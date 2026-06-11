@@ -75,7 +75,19 @@ const mapTileThemes = {
 };
 
 function getSavedColorTheme() {
-    return localStorage.getItem('cool-color-theme') || 'dark';
+    try {
+        return window.localStorage.getItem('cool-color-theme') || 'dark';
+    } catch (error) {
+        return 'dark';
+    }
+}
+
+function saveColorTheme(theme) {
+    try {
+        window.localStorage.setItem('cool-color-theme', theme);
+    } catch (error) {
+        // Storage can be blocked in sandboxed or privacy-restricted contexts.
+    }
 }
 
 function getChartThemeColors() {
@@ -98,7 +110,7 @@ function updateChartTheme() {
 function applyColorTheme(theme) {
     const nextTheme = mapTileThemes[theme] ? theme : 'dark';
     document.documentElement.dataset.colorTheme = nextTheme;
-    localStorage.setItem('cool-color-theme', nextTheme);
+    saveColorTheme(nextTheme);
 
     const select = document.getElementById('color-theme-select');
     if (select) select.value = nextTheme;

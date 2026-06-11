@@ -18,8 +18,14 @@
 
     <script>
         (function(){
-            const savedTheme = localStorage.getItem('cool-color-theme') || 'dark';
-            document.documentElement.dataset.colorTheme = savedTheme;
+            function getStoredTheme() {
+                try {
+                    return window.localStorage.getItem('cool-color-theme');
+                } catch (error) {
+                    return null;
+                }
+            }
+            document.documentElement.dataset.colorTheme = getStoredTheme() || 'dark';
         })();
     </script>
 

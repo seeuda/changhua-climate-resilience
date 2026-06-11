@@ -8,8 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script>
 (function(){
-  const savedTheme = localStorage.getItem('cool-color-theme') || 'dark';
-  document.documentElement.dataset.colorTheme = savedTheme;
+  function getStoredTheme() {
+    try {
+      return window.localStorage.getItem('cool-color-theme');
+    } catch (error) {
+      return null;
+    }
+  }
+  document.documentElement.dataset.colorTheme = getStoredTheme() || 'dark';
 })();
 </script>
 <style>
@@ -340,12 +346,26 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
 <script>
 // Color theme switcher
 const colorThemeSelect = document.getElementById('colorThemeSelect');
+function getStoredColorTheme() {
+  try {
+    return window.localStorage.getItem('cool-color-theme');
+  } catch (error) {
+    return null;
+  }
+}
+function storeColorTheme(theme) {
+  try {
+    window.localStorage.setItem('cool-color-theme', theme);
+  } catch (error) {
+    // Storage can be blocked in sandboxed or privacy-restricted contexts.
+  }
+}
 function setColorTheme(theme) {
   document.documentElement.dataset.colorTheme = theme;
-  localStorage.setItem('cool-color-theme', theme);
+  storeColorTheme(theme);
   if (colorThemeSelect) colorThemeSelect.value = theme;
 }
-setColorTheme(localStorage.getItem('cool-color-theme') || 'dark');
+setColorTheme(getStoredColorTheme() || 'dark');
 if (colorThemeSelect) {
   colorThemeSelect.addEventListener('change', (event) => setColorTheme(event.target.value));
 }
