@@ -2,6 +2,8 @@
 // Application State & Initialization
 // ==========================================================================
 let map;
+let baseTileLayer = null;
+let labelTileLayer = null;
 let townGeoJsonData = null;
 let daycarePointsData = null;
 let originalTownGeoJson = null;
@@ -56,6 +58,74 @@ function getTownRiskHighlightOpacity() {
 }
 
 
+// Base map tiles matched to the selected color theme.
+const mapTileThemes = {
+    dark: {
+        base: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+        labels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png'
+    },
+    light: {
+        base: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        labels: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'
+    },
+    print: {
+        base: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+        labels: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'
+    }
+};
+
+function getSavedColorTheme() {
+    return localStorage.getItem('cool-color-theme') || 'dark';
+}
+
+function getChartThemeColors() {
+    const styles = getComputedStyle(document.documentElement);
+    return {
+        tick: styles.getPropertyValue('--text-secondary').trim() || '#94a3b8',
+        grid: styles.getPropertyValue('--border-color').trim() || 'rgba(255,255,255,0.08)'
+    };
+}
+
+function updateChartTheme() {
+    if (!riskChart) return;
+    const chartTheme = getChartThemeColors();
+    riskChart.options.scales.x.ticks.color = chartTheme.tick;
+    riskChart.options.scales.y.ticks.color = chartTheme.tick;
+    riskChart.options.scales.y.grid.color = chartTheme.grid;
+    riskChart.update();
+}
+
+function applyColorTheme(theme) {
+    const nextTheme = mapTileThemes[theme] ? theme : 'dark';
+    document.documentElement.dataset.colorTheme = nextTheme;
+    localStorage.setItem('cool-color-theme', nextTheme);
+
+    const select = document.getElementById('color-theme-select');
+    if (select) select.value = nextTheme;
+
+    applyMapTileTheme(nextTheme);
+    updateChartTheme();
+}
+
+function applyMapTileTheme(theme) {
+    if (!map) return;
+    const tileTheme = mapTileThemes[theme] || mapTileThemes.dark;
+
+    if (baseTileLayer) map.removeLayer(baseTileLayer);
+    if (labelTileLayer) map.removeLayer(labelTileLayer);
+
+    baseTileLayer = L.tileLayer(tileTheme.base, {
+        maxZoom: 20,
+        subdomains: 'abcd'
+    }).addTo(map);
+
+    labelTileLayer = L.tileLayer(tileTheme.labels, {
+        maxZoom: 20,
+        subdomains: 'abcd',
+        pane: 'labels'
+    }).addTo(map);
+}
+
 // Risk Color Map (corresponds to CSS variables)
 const riskColors = {
     1: '#10b981', // Emerald Green (Low)
@@ -107,18 +177,8 @@ function initMap() {
     map.getPane('labels').style.zIndex = 350;
     map.getPane('labels').style.pointerEvents = 'none'; // Ensure click-through for labels layer
 
-    // Dark Map Base Tile Layer (No labels)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        subdomains: 'abcd'
-    }).addTo(map);
-
-    // Dark Map Labels Overlay (Drawn on labels pane)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        subdomains: 'abcd',
-        pane: 'labels'
-    }).addTo(map);
+    // Theme-aware base map and label layers.
+    applyMapTileTheme(getSavedColorTheme());
 
     // Zoom control at bottom right
     L.control.zoom({
@@ -140,7 +200,7 @@ function loadData() {
     ]).then(([towns, daycares]) => {
         originalTownGeoJson = towns;
         originalDaycarePoints = daycares;
-        
+
         // Apply calibration based on initial slider values (default 0)
         applyCalibration();
     }).catch(err => {
@@ -409,9 +469,9 @@ function updateLayers() {
             const name = feature.properties.name;
             const caseType = feature.properties.case_type || '未知';
             const markerColor = caseColors[caseType] || '#94a3b8';
-            
+
             const isFlooded = daycareIntersectResults[name];
-            
+
             // If daycare is in WRA flooded zone, style it with red alert border and larger radius
             return L.circleMarker(latlng, {
                 radius: isFlooded ? 8 : 6,
@@ -442,7 +502,7 @@ function highlightFeature(e) {
         color: '#ffffff',
         fillOpacity: isNcdrLayerEnabled() ? getTownRiskHighlightOpacity() : 0.05
     });
-    
+
     // Update Map Info Widget
     updateInfoWidget(layer.feature.properties);
 }
@@ -455,7 +515,7 @@ function resetHighlight(e) {
 function selectTownFeature(e) {
     const layer = e.target;
     const townName = layer.feature.properties.town_name;
-    
+
     if (selectedTown === townName) {
         selectedTown = null; // Toggle off
         document.getElementById('town-selected-name').innerText = '(全縣)';
@@ -463,10 +523,10 @@ function selectTownFeature(e) {
         selectedTown = townName;
         document.getElementById('town-selected-name').innerText = `(${townName})`;
     }
-    
+
     // Zoom/Pan slightly
     map.panTo(e.latlng);
-    
+
     populateDaycareList();
 
     // Auto-expand mobile drawer if collapsed when selecting a town
@@ -483,7 +543,7 @@ function selectTownFeature(e) {
 // Popup configuration for daycare markers
 function onEachDaycareFeature(feature, layer) {
     const props = feature.properties;
-    
+
     let warningHtml = '';
     const warningDepth = daycareIntersectResults[props.name];
     if (activeTheme === 'flood' && activeFloodLayers.wra && warningDepth) {
@@ -616,7 +676,7 @@ function updateStatsAndChart() {
 
 function renderChart(distributionData) {
     const ctx = document.getElementById('riskChart').getContext('2d');
-    
+
     const chartLabels = ['低風險 (1)', '中低風 (2)', '中風險 (3)', '中高風 (4)', '高風險 (5)'];
     const chartData = [
         distributionData[1],
@@ -666,11 +726,11 @@ function renderChart(distributionData) {
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#94a3b8', font: { size: 9 } }
+                        ticks: { color: getChartThemeColors().tick, font: { size: 9 } }
                     },
                     y: {
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#94a3b8', font: { size: 9 }, stepSize: 5 }
+                        grid: { color: getChartThemeColors().grid },
+                        ticks: { color: getChartThemeColors().tick, font: { size: 9 }, stepSize: 5 }
                     }
                 }
             }
@@ -699,17 +759,17 @@ function renderChartWRA(distribution) {
             wraColors[5],
             wraColors[6]
         ];
-        riskChart.update();
+        updateChartTheme();
     }
 }
 
 // Info Widget (Hover detail overlay)
 function updateInfoWidget(props) {
     const infoDiv = document.getElementById('info-content');
-    
+
     // Count daycares in this town
     const daycareCount = daycarePointsData ? daycarePointsData.features.filter(f => f.properties.town === props.town_name).length : 0;
-    
+
     if (isWraLayerEnabled()) {
         let floodedCount = 0;
         if (daycarePointsData) {
@@ -734,7 +794,7 @@ function updateInfoWidget(props) {
         const riskVal = props[getActiveRiskField()] || 1;
         const hazVal = props[getActiveHazardField()] || 1;
         const vulVal = props[getActiveVulnerabilityField()] || 1;
-        
+
         infoDiv.innerHTML = `
             <div class="hover-town-title">${props.town_name}</div>
             <div class="hover-stat-row">
@@ -781,16 +841,16 @@ function populateDaycareList() {
 
     filtered.forEach(feat => {
         const props = feat.properties;
-        
+
         let warningTag = '';
         const isFlooded = daycareIntersectResults[props.name];
         if (activeTheme === 'flood' && activeFloodLayers.wra && isFlooded) {
             warningTag = `<span class="item-tag tag-warning" style="background:#ef4444; color:white;"><i class="fa-solid fa-triangle-exclamation"></i> 淹水警戒: ${isFlooded}m</span>`;
         }
-        
+
         const card = document.createElement('div');
         card.className = 'daycare-item-card';
-        
+
         card.innerHTML = `
             <div class="daycare-item-title">${props.name}</div>
             <div class="daycare-item-tags">
@@ -805,19 +865,19 @@ function populateDaycareList() {
                 <i class="fa-solid fa-map-location-dot"></i> <span>${props.address}</span>
             </div>
         `;
-        
+
         // Click item zoom to marker and open popup
         card.addEventListener('click', () => {
             const coords = feat.geometry.coordinates;
             map.setView([coords[1], coords[0]], 14);
-            
+
             daycareLayer.eachLayer(layer => {
                 if (layer.feature.properties.id === props.id) {
                     layer.openPopup();
                 }
             });
         });
-        
+
         container.appendChild(card);
     });
 }
@@ -827,7 +887,7 @@ function populateDaycareList() {
 // ==========================================================================
 function loadWraData(scenarioId, callback) {
     const file = scenarioId === 'gwl20' ? 'wra_flood_650mm_24h.json' : 'wra_flood_350mm_24h.json';
-    
+
     if (scenarioId === 'gwl20' && wraGeoJson650) {
         callback(wraGeoJson650);
         return;
@@ -836,11 +896,11 @@ function loadWraData(scenarioId, callback) {
         callback(wraGeoJson350);
         return;
     }
-    
+
     const indicator = document.getElementById('active-scenario-indicator');
     const originalText = indicator.innerText;
     indicator.innerText = `載入水利署精細潛勢圖中...請稍候...`;
-    
+
     fetch(`${file}?t=${new Date().getTime()}`)
         .then(res => res.json())
         .then(geojson => {
@@ -869,7 +929,7 @@ function renderTimelineUI() {
     if (!selector) return;
 
     let html = '<div class="timeline-track"></div>';
-    
+
     if (activeTheme === 'flood') {
         if (activeFloodLayers.wra && !activeFloodLayers.ncdr) {
             const steps = [
@@ -939,7 +999,21 @@ function updateRiskOpacityControl() {
     }
 }
 
+
+function setupColorThemeControl() {
+    const select = document.getElementById('color-theme-select');
+    const savedTheme = getSavedColorTheme();
+    applyColorTheme(savedTheme);
+
+    if (select) {
+        select.addEventListener('change', (event) => {
+            applyColorTheme(event.target.value);
+        });
+    }
+}
+
 function setupUIControls() {
+    setupColorThemeControl();
     renderTimelineUI();
 
     // 1. Theme Switcher
@@ -949,16 +1023,16 @@ function setupUIControls() {
             const targetBtn = e.currentTarget;
             themeButtons.forEach(b => b.classList.remove('active'));
             targetBtn.classList.add('active');
-            
+
             activeTheme = targetBtn.dataset.theme;
-            
+
             // Show/Hide WRA mode group
             const modeGroup = document.getElementById('flood-mode-group');
             if (modeGroup) {
                 modeGroup.style.display = activeTheme === 'flood' ? 'block' : 'none';
             }
             updateRiskOpacityControl();
-            
+
             // Safety scenario shift
             if (activeTheme === 'flood') {
                 if (activeFloodLayers.wra && !activeFloodLayers.ncdr) {
@@ -969,7 +1043,7 @@ function setupUIControls() {
                     activeScenario = 'current';
                 }
             }
-            
+
             if (isWraLayerEnabled()) {
                 loadWraData(getActiveWraScenario(), () => {
                     renderTimelineUI();
@@ -1043,7 +1117,7 @@ function setupUIControls() {
                 if (activeTheme === 'flood' && activeFloodLayers.wra && !activeFloodLayers.ncdr) {
                     activeWraScenario = nextScenario;
                 }
-                
+
                 if (isWraLayerEnabled()) {
                     loadWraData(getActiveWraScenario(), () => {
                         renderTimelineUI();
@@ -1073,7 +1147,7 @@ function setupUIControls() {
     const lonSlider = document.getElementById('slider-lon-shift');
     const latSlider = document.getElementById('slider-lat-shift');
     const scaleSlider = document.getElementById('slider-scale');
-    
+
     lonSlider.addEventListener('input', applyCalibration);
     latSlider.addEventListener('input', applyCalibration);
     scaleSlider.addEventListener('input', applyCalibration);
@@ -1102,7 +1176,7 @@ function setupUIControls() {
 // Update Title Overlay Text
 function updateHeaderIndicator() {
     const indicator = document.getElementById('active-scenario-indicator');
-    
+
     const themeName = activeTheme === 'flood'
         ? getActiveFloodLayerNames().join(' + ')
         : '高溫風險等級';
@@ -1125,7 +1199,7 @@ function updateHeaderIndicator() {
             scenarioName += `；水利署 ${getWraScenarioName()}`;
         }
     }
-    
+
     indicator.innerText = `${themeName}套疊 - ${scenarioName}`;
 }
 

@@ -6,27 +6,51 @@
 <title>C.O.O.L. 彰化｜氣候韌性與高齡友善 GIS 圖資展示</title>
 <meta name="description" content="彰化縣氣候風險脆弱度圖資套疊展示，結合高齡友善城市與韌性治理">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<script>
+(function(){
+  const savedTheme = localStorage.getItem('cool-color-theme') || 'dark';
+  document.documentElement.dataset.colorTheme = savedTheme;
+})();
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
+  color-scheme:dark;
   --bg:#0a0e1a;--surface:#111827;--card:#1e293b;
   --accent:#6366f1;--accent2:#818cf8;--warn:#f59e0b;--danger:#ef4444;--safe:#10b981;
-  --text:#e2e8f0;--muted:#94a3b8;
-  --radius:16px;
+  --text:#e2e8f0;--muted:#94a3b8;--border:#334155;--image-bg:#0f172a;
+  --hero-bg:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);
+  --hero-sub:#c4b5fd;--hero-badge-bg:rgba(255,255,255,.12);--hero-badge-border:rgba(255,255,255,.2);--hero-badge-text:#e0e7ff;
+  --insight-bg:linear-gradient(135deg,#1e1b4b,#312e81);--insight-border:#4338ca;--insight-heading:#c4b5fd;--insight-text:#e0e7ff;
+  --shadow-accent:rgba(99,102,241,.15);--radius:16px;
 }
-body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+:root[data-color-theme="light"]{
+  color-scheme:light;
+  --bg:#f8fafc;--surface:#ffffff;--card:#ffffff;--text:#0f172a;--muted:#475569;--border:#cbd5e1;--image-bg:#f1f5f9;
+  --accent:#4f46e5;--accent2:#2563eb;--hero-bg:linear-gradient(135deg,#eef2ff 0%,#dbeafe 48%,#ecfeff 100%);
+  --hero-sub:#3730a3;--hero-badge-bg:rgba(255,255,255,.72);--hero-badge-border:rgba(79,70,229,.18);--hero-badge-text:#1e1b4b;
+  --insight-bg:linear-gradient(135deg,#eef2ff,#e0f2fe);--insight-border:#bfdbfe;--insight-heading:#3730a3;--insight-text:#1e293b;
+  --shadow-accent:rgba(79,70,229,.12);
+}
+:root[data-color-theme="print"]{
+  color-scheme:light;
+  --bg:#ffffff;--surface:#ffffff;--card:#ffffff;--text:#111827;--muted:#374151;--border:#d1d5db;--image-bg:#ffffff;
+  --accent:#1d4ed8;--accent2:#0f766e;--hero-bg:#ffffff;--hero-sub:#374151;--hero-badge-bg:#ffffff;--hero-badge-border:#d1d5db;--hero-badge-text:#111827;
+  --insight-bg:#ffffff;--insight-border:#d1d5db;--insight-heading:#111827;--insight-text:#111827;--shadow-accent:rgba(0,0,0,.06);
+}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .2s,color .2s}
 
 /* Hero */
-.hero{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);padding:48px 24px 36px;text-align:center;position:relative;overflow:hidden}
+.hero{background:var(--hero-bg);padding:48px 24px 36px;text-align:center;position:relative;overflow:hidden}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,var(--bg))}
 .hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:2px;margin-bottom:8px}
 .hero h1 span{background:linear-gradient(90deg,#c084fc,#818cf8,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .sub{font-size:1rem;color:#c4b5fd;font-weight:300;margin-bottom:6px}
-.hero .badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 16px;font-size:.8rem;color:#e0e7ff;margin-top:12px;backdrop-filter:blur(8px)}
+.hero .sub{font-size:1rem;color:var(--hero-sub);font-weight:300;margin-bottom:6px}
+.hero .badge{display:inline-block;background:var(--hero-badge-bg);border:1px solid var(--hero-badge-border);border-radius:999px;padding:4px 16px;font-size:.8rem;color:var(--hero-badge-text);margin-top:12px;backdrop-filter:blur(8px)}
 
 /* Nav tabs */
-.tabs{display:flex;gap:8px;padding:16px 24px;overflow-x:auto;position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid #1e293b}
-.tab{padding:10px 20px;border-radius:999px;border:1px solid #334155;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-family:inherit;white-space:nowrap;transition:all .25s}
+.tabs{display:flex;gap:8px;padding:16px 24px;overflow-x:auto;position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);align-items:center}
+.tab{padding:10px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-family:inherit;white-space:nowrap;transition:all .25s}
 .tab:hover{border-color:var(--accent);color:var(--accent2)}
 .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
 
@@ -40,9 +64,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
 /* Card grid */
 .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
-.card{background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid #334155;transition:transform .25s,box-shadow .25s}
-.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(99,102,241,.15)}
-.card img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#0f172a;cursor:pointer;transition:filter .2s}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--shadow-accent)}
+.card img{width:100%;aspect-ratio:4/3;object-fit:contain;background:var(--image-bg);cursor:pointer;transition:filter .2s}
 .card img:hover{filter:brightness(1.1)}
 .card-body{padding:16px}
 .card-body h3{font-size:1rem;font-weight:600;margin-bottom:6px}
@@ -52,9 +76,13 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .tag-warn{background:rgba(245,158,11,.15);color:#fcd34d}
 .tag-info{background:rgba(99,102,241,.15);color:#a5b4fc}
 .tag-safe{background:rgba(16,185,129,.15);color:#6ee7b7}
+:root[data-color-theme="light"] .tag-danger,:root[data-color-theme="print"] .tag-danger{color:#b91c1c}
+:root[data-color-theme="light"] .tag-warn,:root[data-color-theme="print"] .tag-warn{color:#92400e}
+:root[data-color-theme="light"] .tag-info,:root[data-color-theme="print"] .tag-info{color:#3730a3}
+:root[data-color-theme="light"] .tag-safe,:root[data-color-theme="print"] .tag-safe{color:#047857}
 
 /* Compare slider */
-.compare{position:relative;width:100%;max-width:800px;margin:0 auto 24px;border-radius:var(--radius);overflow:hidden;border:1px solid #334155;aspect-ratio:4/3;background:#0f172a;touch-action:none}
+.compare{position:relative;width:100%;max-width:800px;margin:0 auto 24px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);aspect-ratio:4/3;background:var(--image-bg);touch-action:none}
 .compare img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
 .compare .after{clip-path:inset(0 0 0 50%)}
 .compare .slider{position:absolute;top:0;bottom:0;left:50%;width:4px;background:var(--accent);cursor:ew-resize;z-index:10}
@@ -64,14 +92,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .compare-label.right{right:12px}
 
 /* Insight box */
-.insight{background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid #4338ca;border-radius:var(--radius);padding:20px;margin-bottom:24px}
-.insight h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:#c4b5fd}
-.insight p{font-size:.85rem;line-height:1.8;color:#e0e7ff}
+.insight{background:var(--insight-bg);border:1px solid var(--insight-border);border-radius:var(--radius);padding:20px;margin-bottom:24px}
+.insight h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--insight-heading)}
+.insight p{font-size:.85rem;line-height:1.8;color:var(--insight-text)}
 .insight .highlight{color:#fbbf24;font-weight:700}
 
 /* Stats */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
-.stat{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid #334155}
+.stat{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
 .stat .num{font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .stat .label{font-size:.75rem;color:var(--muted);margin-top:4px}
 
@@ -82,13 +110,23 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
 /* Timeline */
 .timeline{position:relative;padding-left:28px;margin-bottom:24px}
-.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#334155}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--border)}
 .tl-item{position:relative;margin-bottom:20px}
 .tl-item::before{content:'';position:absolute;left:-22px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
 .tl-item h4{font-size:.9rem;font-weight:600;margin-bottom:4px}
 .tl-item p{font-size:.8rem;color:var(--muted);line-height:1.6}
 
-footer{text-align:center;padding:32px;color:#475569;font-size:.75rem;border-top:1px solid #1e293b;margin-top:48px}
+footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border-top:1px solid var(--border);margin-top:48px}
+
+.theme-picker{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.82rem;white-space:nowrap}
+.theme-picker select{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 32px 8px 12px;cursor:pointer}
+:root[data-color-theme="print"] .hero h1 span{-webkit-text-fill-color:currentColor;background:none;color:var(--text)}
+:root[data-color-theme="print"] .card:hover{transform:none;box-shadow:none}
+@media (max-width:760px){.theme-picker{margin-left:0;width:100%;justify-content:flex-start}.theme-picker select{flex:1}}
+@media print{
+  :root{color-scheme:light;--bg:#fff;--surface:#fff;--card:#fff;--text:#111827;--muted:#374151;--border:#d1d5db;--image-bg:#fff;--accent:#1d4ed8;--accent2:#0f766e;--hero-bg:#fff;--hero-sub:#374151;--hero-badge-bg:#fff;--hero-badge-border:#d1d5db;--hero-badge-text:#111827;--insight-bg:#fff;--insight-border:#d1d5db;--insight-heading:#111827;--insight-text:#111827;--shadow-accent:rgba(0,0,0,0)}
+  .tabs,.theme-picker,.lightbox{display:none!important}.hero{padding:24px 16px}.hero::after{display:none}.section{display:block!important;page-break-inside:auto}.card,.insight,.stat{break-inside:avoid;box-shadow:none!important}.card:hover{transform:none}body{background:#fff!important;color:#111827!important}
+}
 </style>
 </head>
 <body>
@@ -106,6 +144,13 @@ footer{text-align:center;padding:32px;color:#475569;font-size:.75rem;border-top:
   <button class="tab" data-tab="infra">🌉 維生設施韌性</button>
   <button class="tab" data-tab="agri">🌾 農業乾旱風險</button>
   <button class="tab" data-tab="action">🏛️ 智慧治理願景</button>
+  <label class="theme-picker" for="colorThemeSelect">🎨 佈景主題
+    <select id="colorThemeSelect" aria-label="選擇色彩佈景主題">
+      <option value="dark">深色展示</option>
+      <option value="light">亮色閱讀</option>
+      <option value="print">列印省墨</option>
+    </select>
+  </label>
 </nav>
 
 <!-- ===== 總覽 ===== -->
@@ -293,6 +338,18 @@ footer{text-align:center;padding:32px;color:#475569;font-size:.75rem;border-top:
 </footer>
 
 <script>
+// Color theme switcher
+const colorThemeSelect = document.getElementById('colorThemeSelect');
+function setColorTheme(theme) {
+  document.documentElement.dataset.colorTheme = theme;
+  localStorage.setItem('cool-color-theme', theme);
+  if (colorThemeSelect) colorThemeSelect.value = theme;
+}
+setColorTheme(localStorage.getItem('cool-color-theme') || 'dark');
+if (colorThemeSelect) {
+  colorThemeSelect.addEventListener('change', (event) => setColorTheme(event.target.value));
+}
+
 // Tab navigation
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
