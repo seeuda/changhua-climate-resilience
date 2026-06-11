@@ -887,7 +887,7 @@ function renderTimelineUI() {
             });
         } else {
             const steps = [
-                { id: 'current', label: '現況基準 (Baseline)', left: '0%' },
+                { id: 'current', label: '現況基準', left: '0%' },
                 { id: 'gwl15', label: '世紀末升溫 1.5°C 情境', left: '100%' }
             ];
             steps.forEach(step => {
@@ -902,7 +902,7 @@ function renderTimelineUI() {
         }
     } else {
         const steps = [
-            { id: 'current', label: '現況基準 (Baseline)', left: '0%' },
+            { id: 'current', label: '現況基準', left: '0%' },
             { id: 'gwl15', label: '升溫 1.5°C', left: '33.33%' },
             { id: 'gwl20', label: '升溫 2.0°C', left: '66.67%' },
             { id: 'gwl40', label: '升溫 4.0°C', left: '100%' }
