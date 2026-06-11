@@ -13,13 +13,48 @@ let riskChart = null;
 
 let activeTheme = 'flood'; // 'flood' or 'temp'
 let activeScenario = 'current'; // 'current', 'gwl15', 'gwl20', 'gwl40'
-let activeFloodMode = 'ncdr'; // 'ncdr' or 'wra'
+let activeFloodLayers = { ncdr: true, wra: false }; // flood overlays can be combined
+let activeWraScenario = 'gwl15'; // 'gwl15' = 350mm/24HR, 'gwl20' = 650mm/24HR
+let ncdrRiskOpacity = 0.7;
 let selectedTown = null; // Filter daycare list
 
 let wraGeoJson350 = null;
 let wraGeoJson650 = null;
 let wraLayer = null;
 let daycareIntersectResults = {}; // daycare name -> depth_type
+
+
+function isWraLayerEnabled() {
+    return activeTheme === 'flood' && activeFloodLayers.wra;
+}
+
+function isNcdrLayerEnabled() {
+    return activeTheme === 'temp' || (activeTheme === 'flood' && activeFloodLayers.ncdr);
+}
+
+function getActiveFloodLayerNames() {
+    const names = [];
+    if (activeFloodLayers.ncdr) names.push('NCDR 鄉鎮風險');
+    if (activeFloodLayers.wra) names.push('水利署潛勢圖');
+    return names;
+}
+
+function getActiveWraScenario() {
+    return activeFloodLayers.wra && !activeFloodLayers.ncdr ? activeScenario : activeWraScenario;
+}
+
+function getWraScenarioName() {
+    return getActiveWraScenario() === 'gwl20' ? '650mm / 24HR 極端降雨' : '350mm / 24HR 暴雨模擬';
+}
+
+function getTownRiskFillOpacity() {
+    return activeTheme === 'flood' ? ncdrRiskOpacity : 0.7;
+}
+
+function getTownRiskHighlightOpacity() {
+    return activeTheme === 'flood' ? Math.min(ncdrRiskOpacity + 0.1, 1) : 0.8;
+}
+
 
 // Risk Color Map (corresponds to CSS variables)
 const riskColors = {
@@ -158,8 +193,8 @@ function applyCalibration() {
 
     // Transform WRA GeoJSON if active and loaded
     activeWraData = null;
-    if (activeTheme === 'flood' && activeFloodMode === 'wra') {
-        const originalWra = activeScenario === 'gwl20' ? wraGeoJson650 : wraGeoJson350;
+    if (isWraLayerEnabled()) {
+        const originalWra = getActiveWraScenario() === 'gwl20' ? wraGeoJson650 : wraGeoJson350;
         if (originalWra) {
             activeWraData = JSON.parse(JSON.stringify(originalWra));
             activeWraData.features.forEach(f => {
@@ -289,7 +324,7 @@ function isPointInMultiPolygon(x, y, coordinates) {
 
 function computeIntersections() {
     daycareIntersectResults = {};
-    if (activeTheme === 'flood' && activeFloodMode === 'wra' && activeWraData && daycarePointsData) {
+    if (activeTheme === 'flood' && activeFloodLayers.wra && activeWraData && daycarePointsData) {
         daycarePointsData.features.forEach(dc => {
             const coords = dc.geometry.coordinates;
             const x = coords[0];
@@ -319,7 +354,7 @@ function updateLayers() {
     computeIntersections();
 
     // 2. Renders WRA Layer if active
-    if (activeTheme === 'flood' && activeFloodMode === 'wra' && activeWraData) {
+    if (activeTheme === 'flood' && activeFloodLayers.wra && activeWraData) {
         wraLayer = L.geoJSON(activeWraData, {
             style: (feature) => {
                 const gridCode = feature.properties.grid_code || 2;
@@ -338,13 +373,13 @@ function updateLayers() {
     }
 
     const riskField = getActiveRiskField();
-    const isWraMode = (activeTheme === 'flood' && activeFloodMode === 'wra');
+    const isNcdrVisible = isNcdrLayerEnabled();
 
     // 3. Add Town Polygons
     townLayer = L.geoJSON(townGeoJsonData, {
         pane: 'towns',
         style: (feature) => {
-            if (isWraMode) {
+            if (!isNcdrVisible) {
                 // Transparent fill with visible boundaries in WRA mode
                 return {
                     fillColor: 'transparent',
@@ -358,7 +393,7 @@ function updateLayers() {
                 const riskVal = feature.properties[riskField] || 1;
                 return {
                     fillColor: riskColors[riskVal] || '#cccccc',
-                    fillOpacity: 0.7,
+                    fillOpacity: getTownRiskFillOpacity(),
                     color: 'rgba(255,255,255,0.15)',
                     weight: 1.5,
                     className: 'town-boundary'
@@ -405,7 +440,7 @@ function highlightFeature(e) {
     layer.setStyle({
         weight: 3,
         color: '#ffffff',
-        fillOpacity: (activeTheme === 'flood' && activeFloodMode === 'wra') ? 0.05 : 0.8
+        fillOpacity: isNcdrLayerEnabled() ? getTownRiskHighlightOpacity() : 0.05
     });
     
     // Update Map Info Widget
@@ -451,7 +486,7 @@ function onEachDaycareFeature(feature, layer) {
     
     let warningHtml = '';
     const warningDepth = daycareIntersectResults[props.name];
-    if (activeTheme === 'flood' && activeFloodMode === 'wra' && warningDepth) {
+    if (activeTheme === 'flood' && activeFloodLayers.wra && warningDepth) {
         warningHtml = `
             <div class="popup-row" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; padding: 4px 8px; margin-top: 4px; margin-bottom: 8px;">
                 <span class="popup-label" style="color: #ef4444; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> 淹水警戒</span>
@@ -501,7 +536,7 @@ function updateStatsAndChart() {
     // Dynamically update the legend content
     updateLegendUI();
 
-    if (activeTheme === 'flood' && activeFloodMode === 'wra') {
+    if (isWraLayerEnabled()) {
         // WRA Inundation mode
         let totalFlooded = 0;
         const depthDistribution = { 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
@@ -668,7 +703,7 @@ function updateInfoWidget(props) {
     // Count daycares in this town
     const daycareCount = daycarePointsData ? daycarePointsData.features.filter(f => f.properties.town === props.town_name).length : 0;
     
-    if (activeTheme === 'flood' && activeFloodMode === 'wra') {
+    if (isWraLayerEnabled()) {
         let floodedCount = 0;
         if (daycarePointsData) {
             daycarePointsData.features.forEach(f => {
@@ -742,7 +777,7 @@ function populateDaycareList() {
         
         let warningTag = '';
         const isFlooded = daycareIntersectResults[props.name];
-        if (activeTheme === 'flood' && activeFloodMode === 'wra' && isFlooded) {
+        if (activeTheme === 'flood' && activeFloodLayers.wra && isFlooded) {
             warningTag = `<span class="item-tag tag-warning" style="background:#ef4444; color:white;"><i class="fa-solid fa-triangle-exclamation"></i> 淹水警戒: ${isFlooded}m</span>`;
         }
         
@@ -829,13 +864,13 @@ function renderTimelineUI() {
     let html = '<div class="timeline-track"></div>';
     
     if (activeTheme === 'flood') {
-        if (activeFloodMode === 'wra') {
+        if (activeFloodLayers.wra && !activeFloodLayers.ncdr) {
             const steps = [
                 { id: 'gwl15', label: '350mm / 24HR 暴雨', left: '0%' },
                 { id: 'gwl20', label: '650mm / 24HR 極端降雨', left: '100%' }
             ];
             steps.forEach(step => {
-                const isActive = activeScenario === step.id ? 'active' : '';
+                const isActive = getActiveWraScenario() === step.id ? 'active' : '';
                 html += `
                     <div class="timeline-step ${isActive}" data-scenario="${step.id}" style="left: ${step.left};">
                         <span class="step-dot"></span>
@@ -879,6 +914,19 @@ function renderTimelineUI() {
     selector.innerHTML = html;
 }
 
+function updateNcdrOpacityControl() {
+    const opacityGroup = document.getElementById('ncdr-opacity-group');
+    const opacityValue = document.getElementById('val-ncdr-opacity');
+
+    if (opacityGroup) {
+        opacityGroup.style.display = activeTheme === 'flood' && activeFloodLayers.ncdr ? 'flex' : 'none';
+    }
+
+    if (opacityValue) {
+        opacityValue.innerText = `${Math.round(ncdrRiskOpacity * 100)}%`;
+    }
+}
+
 function setupUIControls() {
     renderTimelineUI();
 
@@ -897,22 +945,21 @@ function setupUIControls() {
             if (modeGroup) {
                 modeGroup.style.display = activeTheme === 'flood' ? 'block' : 'none';
             }
+            updateNcdrOpacityControl();
             
             // Safety scenario shift
             if (activeTheme === 'flood') {
-                if (activeFloodMode === 'wra') {
+                if (activeFloodLayers.wra && !activeFloodLayers.ncdr) {
                     if (activeScenario !== 'gwl15' && activeScenario !== 'gwl20') {
                         activeScenario = 'gwl15';
                     }
-                } else {
-                    if (activeScenario !== 'current' && activeScenario !== 'gwl15') {
-                        activeScenario = 'current';
-                    }
+                } else if (activeScenario !== 'current' && activeScenario !== 'gwl15') {
+                    activeScenario = 'current';
                 }
             }
             
-            if (activeTheme === 'flood' && activeFloodMode === 'wra') {
-                loadWraData(activeScenario, () => {
+            if (isWraLayerEnabled()) {
+                loadWraData(getActiveWraScenario(), () => {
                     renderTimelineUI();
                     updateHeaderIndicator();
                     applyCalibration();
@@ -925,29 +972,46 @@ function setupUIControls() {
         });
     });
 
-    // 2. Flood Mode Selector
+    // 2. Flood Layer Selector (multi-select overlay)
     const modeButtons = document.querySelectorAll('#flood-mode-selector .toggle-btn');
+    const syncFloodLayerButtons = () => {
+        modeButtons.forEach(button => {
+            button.classList.toggle('active', Boolean(activeFloodLayers[button.dataset.mode]));
+            button.setAttribute('aria-pressed', String(Boolean(activeFloodLayers[button.dataset.mode])));
+        });
+    };
+    syncFloodLayerButtons();
+    updateNcdrOpacityControl();
+
     modeButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             const targetBtn = e.currentTarget;
-            modeButtons.forEach(b => b.classList.remove('active'));
-            targetBtn.classList.add('active');
-            
-            activeFloodMode = targetBtn.dataset.mode;
-            
-            if (activeFloodMode === 'wra') {
+            const mode = targetBtn.dataset.mode;
+            const enabledCount = Object.values(activeFloodLayers).filter(Boolean).length;
+
+            if (activeFloodLayers[mode] && enabledCount === 1) {
+                return;
+            }
+
+            activeFloodLayers[mode] = !activeFloodLayers[mode];
+            syncFloodLayerButtons();
+            updateNcdrOpacityControl();
+
+            if (activeFloodLayers.wra && !activeFloodLayers.ncdr) {
                 if (activeScenario !== 'gwl15' && activeScenario !== 'gwl20') {
                     activeScenario = 'gwl15';
                 }
-                loadWraData(activeScenario, () => {
+            } else if (activeScenario !== 'current' && activeScenario !== 'gwl15') {
+                activeScenario = 'current';
+            }
+
+            if (isWraLayerEnabled()) {
+                loadWraData(getActiveWraScenario(), () => {
                     renderTimelineUI();
                     updateHeaderIndicator();
                     applyCalibration();
                 });
             } else {
-                if (activeScenario !== 'current' && activeScenario !== 'gwl15') {
-                    activeScenario = 'current';
-                }
                 renderTimelineUI();
                 updateHeaderIndicator();
                 applyCalibration();
@@ -961,10 +1025,15 @@ function setupUIControls() {
         selector.addEventListener('click', (e) => {
             const stepElement = e.target.closest('.timeline-step');
             if (stepElement) {
-                activeScenario = stepElement.dataset.scenario;
+                const nextScenario = stepElement.dataset.scenario;
+                activeScenario = nextScenario;
+
+                if (activeTheme === 'flood' && activeFloodLayers.wra && !activeFloodLayers.ncdr) {
+                    activeWraScenario = nextScenario;
+                }
                 
-                if (activeTheme === 'flood' && activeFloodMode === 'wra') {
-                    loadWraData(activeScenario, () => {
+                if (isWraLayerEnabled()) {
+                    loadWraData(getActiveWraScenario(), () => {
                         renderTimelineUI();
                         updateHeaderIndicator();
                         applyCalibration();
@@ -978,7 +1047,17 @@ function setupUIControls() {
         });
     }
 
-    // 4. Calibration Sliders
+    // 4. NCDR opacity slider
+    const ncdrOpacitySlider = document.getElementById('slider-ncdr-opacity');
+    if (ncdrOpacitySlider) {
+        ncdrOpacitySlider.addEventListener('input', (e) => {
+            ncdrRiskOpacity = parseFloat(e.target.value);
+            updateNcdrOpacityControl();
+            updateLayers();
+        });
+    }
+
+    // 5. Calibration Sliders
     const lonSlider = document.getElementById('slider-lon-shift');
     const latSlider = document.getElementById('slider-lat-shift');
     const scaleSlider = document.getElementById('slider-scale');
@@ -987,7 +1066,7 @@ function setupUIControls() {
     latSlider.addEventListener('input', applyCalibration);
     scaleSlider.addEventListener('input', applyCalibration);
 
-    // 5. Mobile Sidebar Drawer Toggle
+    // 6. Mobile Sidebar Drawer Toggle
     const brand = document.querySelector('.brand');
     const container = document.querySelector('.app-container');
     const toggleIcon = document.getElementById('mobile-toggle-icon');
@@ -1012,13 +1091,13 @@ function setupUIControls() {
 function updateHeaderIndicator() {
     const indicator = document.getElementById('active-scenario-indicator');
     
-    const themeName = activeTheme === 'flood' 
-        ? (activeFloodMode === 'wra' ? '水利署淹水潛勢圖' : '淹水風險等級') 
+    const themeName = activeTheme === 'flood'
+        ? getActiveFloodLayerNames().join(' + ')
         : '高溫風險等級';
-        
+
     let scenarioName = '現況基準';
-    if (activeTheme === 'flood' && activeFloodMode === 'wra') {
-        scenarioName = activeScenario === 'gwl20' ? '650mm / 24HR 極端降雨' : '350mm / 24HR 暴雨模擬';
+    if (isWraLayerEnabled() && !activeFloodLayers.ncdr) {
+        scenarioName = getWraScenarioName();
     } else {
         if (activeScenario === 'gwl15') {
             scenarioName = '升溫 1.5°C 情境推估';
@@ -1029,6 +1108,10 @@ function updateHeaderIndicator() {
         } else if (activeScenario === 'future') {
             scenarioName = '升溫 1.5°C 情境推估';
         }
+
+        if (isWraLayerEnabled()) {
+            scenarioName += `；水利署 ${getWraScenarioName()}`;
+        }
     }
     
     indicator.innerText = `${themeName}套疊 - ${scenarioName}`;
@@ -1038,42 +1121,39 @@ function updateHeaderIndicator() {
 function updateLegendUI() {
     const legendDiv = document.getElementById('map-legend-widget');
     if (!legendDiv) return;
-    
-    if (activeTheme === 'flood' && activeFloodMode === 'wra') {
-        legendDiv.innerHTML = `
-            <div class="legend-title">水利署預估淹水深度</div>
-            <div class="legend-scale">
-                <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[2]}"></span> <span>0.3 - 0.5 公尺</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[3]}"></span> <span>0.5 - 1.0 公尺</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[4]}"></span> <span>1.0 - 2.0 公尺</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[5]}"></span> <span>2.0 - 3.0 公尺</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[6]}"></span> <span>大於 3.0 公尺</span></div>
-            </div>
-            <div class="legend-title" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">日照機構類型</div>
-            <div class="legend-scale">
-                <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['混合型']}; border-radius:50%"></span> <span>混合型機構</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['失智型']}; border-radius:50%"></span> <span>失智型特約機構</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['失能型']}; border-radius:50%"></span> <span>失能型特約機構</span></div>
-            </div>
-        `;
-    } else {
-        legendDiv.innerHTML = `
-            <div class="legend-title">綜合風險指標等級</div>
-            <div class="legend-scale">
-                <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[1]}"></span> <span>極低風險 (Level 1)</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[2]}"></span> <span>低風險 (Level 2)</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[3]}"></span> <span>中等風險 (Level 3)</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[4]}"></span> <span>高風險 (Level 4)</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[5]}"></span> <span>極高風險 (Level 5)</span></div>
-            </div>
-            <div class="legend-title" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">日照機構類型</div>
-            <div class="legend-scale">
-                <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['混合型']}; border-radius:50%"></span> <span>混合型機構</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['失智型']}; border-radius:50%"></span> <span>失智型特約機構</span></div>
-                <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['失能型']}; border-radius:50%"></span> <span>失能型特約機構</span></div>
-            </div>
-        `;
-    }
+
+    const riskLegend = `
+        <div class="legend-title">綜合風險指標等級</div>
+        <div class="legend-scale">
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[1]}"></span> <span>極低風險 (Level 1)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[2]}"></span> <span>低風險 (Level 2)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[3]}"></span> <span>中等風險 (Level 3)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[4]}"></span> <span>高風險 (Level 4)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[5]}"></span> <span>極高風險 (Level 5)</span></div>
+        </div>
+    `;
+
+    const wraLegend = `
+        <div class="legend-title" style="margin-top: ${isNcdrLayerEnabled() ? '10px' : '0'}; ${isNcdrLayerEnabled() ? 'border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;' : ''}">水利署預估淹水深度</div>
+        <div class="legend-scale">
+            <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[2]}"></span> <span>0.3 - 0.5 公尺</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[3]}"></span> <span>0.5 - 1.0 公尺</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[4]}"></span> <span>1.0 - 2.0 公尺</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[5]}"></span> <span>2.0 - 3.0 公尺</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${wraColors[6]}"></span> <span>大於 3.0 公尺</span></div>
+        </div>
+    `;
+
+    const daycareLegend = `
+        <div class="legend-title" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">日照機構類型</div>
+        <div class="legend-scale">
+            <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['混合型']}; border-radius:50%"></span> <span>混合型機構</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['失智型']}; border-radius:50%"></span> <span>失智型特約機構</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${caseColors['失能型']}; border-radius:50%"></span> <span>失能型特約機構</span></div>
+        </div>
+    `;
+
+    legendDiv.innerHTML = `${isNcdrLayerEnabled() ? riskLegend : ''}${isWraLayerEnabled() ? wraLegend : ''}${daycareLegend}`;
 }
 
 // Legend Widget Initialization

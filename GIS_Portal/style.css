@@ -70,6 +70,7 @@ body, html {
     flex-direction: column;
     gap: 20px;
     overflow-y: auto;
+    overflow-x: hidden;
     z-index: 1000;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
 }
@@ -115,6 +116,8 @@ body, html {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .section-title i {
@@ -190,6 +193,7 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-width: 0;
 }
 
 .control-group {
@@ -206,14 +210,34 @@ body, html {
     letter-spacing: 0.5px;
 }
 
+.opacity-control-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#val-ncdr-opacity {
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+.control-range {
+    width: 100%;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
 /* Toggle Buttons */
 .toggle-buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     background: rgba(15, 23, 42, 0.5);
     border-radius: 10px;
     padding: 4px;
     border: 1px solid var(--border-color);
+    min-width: 0;
 }
 
 .toggle-btn {
@@ -230,6 +254,10 @@ body, html {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    line-height: 1.25;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
     transition: all 0.3s ease;
 }
 
@@ -297,9 +325,29 @@ body, html {
     font-weight: 600;
     color: var(--text-secondary);
     margin-top: 6px;
-    white-space: nowrap;
+    max-width: 132px;
+    line-height: 1.25;
     text-align: center;
+    overflow-wrap: anywhere;
     transition: all 0.3s ease;
+}
+
+.timeline-step[style*="left: 0%"] {
+    align-items: flex-start;
+    transform: translateX(0);
+}
+
+.timeline-step[style*="left: 100%"] {
+    align-items: flex-end;
+    transform: translateX(-100%);
+}
+
+.timeline-step[style*="left: 0%"] .step-label {
+    text-align: left;
+}
+
+.timeline-step[style*="left: 100%"] .step-label {
+    text-align: right;
 }
 
 .timeline-step.active .step-label {
@@ -380,6 +428,8 @@ body, html {
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .daycare-item-tags {
@@ -409,8 +459,16 @@ body, html {
     font-size: 11px;
     color: var(--text-secondary);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.daycare-item-detail span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .daycare-item-detail i {
