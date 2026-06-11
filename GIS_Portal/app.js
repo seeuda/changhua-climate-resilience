@@ -530,80 +530,87 @@ function onEachDaycareFeature(feature, layer) {
 // ==========================================================================
 // Dashboard Widgets & Stats Updater
 // ==========================================================================
+function updateHighRiskCard(total, label) {
+    const highRiskCard = document.querySelector('.high-risk-centers');
+    const highRiskLabel = highRiskCard.querySelector('.stat-label');
+    const highRiskValue = highRiskCard.querySelector('.stat-value');
+
+    highRiskLabel.innerText = label;
+    highRiskValue.innerText = total;
+
+    if (total > 0) {
+        highRiskCard.classList.add('warning-active');
+        highRiskValue.style.color = '#ef4444';
+    } else {
+        highRiskCard.classList.remove('warning-active');
+        highRiskValue.style.color = '';
+    }
+}
+
+function getRiskDistribution() {
+    const riskField = getActiveRiskField();
+    const townRisks = {};
+
+    townGeoJsonData.features.forEach(feat => {
+        const name = feat.properties.town_name;
+        townRisks[name] = feat.properties[riskField] || 1;
+    });
+
+    let totalHighRisk = 0;
+    const riskDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+    daycarePointsData.features.forEach(feat => {
+        const town = feat.properties.town;
+        const riskVal = townRisks[town] || 1;
+
+        riskDistribution[riskVal]++;
+        if (riskVal >= 4) {
+            totalHighRisk++;
+        }
+    });
+
+    return { totalHighRisk, riskDistribution };
+}
+
+function getWraDepthDistribution() {
+    let totalFlooded = 0;
+    const depthDistribution = { 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+
+    daycarePointsData.features.forEach(feat => {
+        const name = feat.properties.name;
+        const depth = daycareIntersectResults[name];
+        if (depth) {
+            totalFlooded++;
+            let code = 2;
+            if (depth === '0.3-0.5') code = 2;
+            else if (depth === '0.5-1') code = 3;
+            else if (depth === '1-2') code = 4;
+            else if (depth === '2-3') code = 5;
+            else if (depth === '>3') code = 6;
+            depthDistribution[code]++;
+        }
+    });
+
+    return { totalFlooded, depthDistribution };
+}
+
 function updateStatsAndChart() {
     if (!townGeoJsonData || !daycarePointsData) return;
 
     // Dynamically update the legend content
     updateLegendUI();
 
-    if (isWraLayerEnabled()) {
-        // WRA Inundation mode
-        let totalFlooded = 0;
-        const depthDistribution = { 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-        
-        daycarePointsData.features.forEach(feat => {
-            const name = feat.properties.name;
-            const depth = daycareIntersectResults[name];
-            if (depth) {
-                totalFlooded++;
-                let code = 2;
-                if (depth === '0.3-0.5') code = 2;
-                else if (depth === '0.5-1') code = 3;
-                else if (depth === '1-2') code = 4;
-                else if (depth === '2-3') code = 5;
-                else if (depth === '>3') code = 6;
-                depthDistribution[code]++;
-            }
-        });
-
-        document.getElementById('val-high-risk').innerText = totalFlooded;
-        
-        const highRiskCard = document.querySelector('.high-risk-centers');
-        if (totalFlooded > 0) {
-            highRiskCard.classList.add('warning-active');
-            highRiskCard.querySelector('.stat-value').style.color = '#ef4444';
-        } else {
-            highRiskCard.classList.remove('warning-active');
-            highRiskCard.querySelector('.stat-value').style.color = '';
-        }
-
-        renderChartWRA(depthDistribution);
-
-    } else {
-        // Standard NCDR Mode (Flood risk / High Temp risk)
-        const riskField = getActiveRiskField();
-        
-        const townRisks = {};
-        townGeoJsonData.features.forEach(feat => {
-            const name = feat.properties.town_name;
-            townRisks[name] = feat.properties[riskField] || 1;
-        });
-
-        let totalHighRisk = 0;
-        const riskDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-        daycarePointsData.features.forEach(feat => {
-            const town = feat.properties.town;
-            const riskVal = townRisks[town] || 1;
-            
-            riskDistribution[riskVal]++;
-            if (riskVal >= 4) {
-                totalHighRisk++;
-            }
-        });
-
-        document.getElementById('val-high-risk').innerText = totalHighRisk;
-        
-        const highRiskCard = document.querySelector('.high-risk-centers');
-        if (totalHighRisk > 0) {
-            highRiskCard.classList.add('warning-active');
-            highRiskCard.querySelector('.stat-value').style.color = '#ef4444';
-        } else {
-            highRiskCard.classList.remove('warning-active');
-            highRiskCard.querySelector('.stat-value').style.color = '';
-        }
-
+    if (isNcdrLayerEnabled()) {
+        // NCDR must remain the source for the Lv.4-5 warning card whenever
+        // the NCDR layer is visible, even when the WRA potential layer is also overlaid.
+        const { totalHighRisk, riskDistribution } = getRiskDistribution();
+        updateHighRiskCard(totalHighRisk, '高風險警戒日照 (Lv.4-5)');
         renderChart(riskDistribution);
+    } else if (isWraLayerEnabled()) {
+        // WRA-only mode has no NCDR Lv.4-5 towns, so summarize flooded daycare sites by depth.
+        const { totalFlooded, depthDistribution } = getWraDepthDistribution();
+        updateHighRiskCard(totalFlooded, '淹水警戒日照');
+        renderChartWRA(depthDistribution);
     }
 }
 
