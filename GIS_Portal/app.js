@@ -15,7 +15,7 @@ let activeTheme = 'flood'; // 'flood' or 'temp'
 let activeScenario = 'current'; // 'current', 'gwl15', 'gwl20', 'gwl40'
 let activeFloodLayers = { ncdr: true, wra: false }; // flood overlays can be combined
 let activeWraScenario = 'gwl15'; // 'gwl15' = 350mm/24HR, 'gwl20' = 650mm/24HR
-let ncdrRiskOpacity = 0.7;
+let riskMapOpacity = 0.7;
 let selectedTown = null; // Filter daycare list
 
 let wraGeoJson350 = null;
@@ -48,11 +48,11 @@ function getWraScenarioName() {
 }
 
 function getTownRiskFillOpacity() {
-    return activeTheme === 'flood' ? ncdrRiskOpacity : 0.7;
+    return riskMapOpacity;
 }
 
 function getTownRiskHighlightOpacity() {
-    return activeTheme === 'flood' ? Math.min(ncdrRiskOpacity + 0.1, 1) : 0.8;
+    return Math.min(riskMapOpacity + 0.1, 1);
 }
 
 
@@ -921,16 +921,21 @@ function renderTimelineUI() {
     selector.innerHTML = html;
 }
 
-function updateNcdrOpacityControl() {
-    const opacityGroup = document.getElementById('ncdr-opacity-group');
-    const opacityValue = document.getElementById('val-ncdr-opacity');
+function updateRiskOpacityControl() {
+    const opacityGroup = document.getElementById('risk-opacity-group');
+    const opacityLabel = document.getElementById('risk-opacity-label');
+    const opacityValue = document.getElementById('val-risk-opacity');
 
     if (opacityGroup) {
-        opacityGroup.style.display = activeTheme === 'flood' && activeFloodLayers.ncdr ? 'flex' : 'none';
+        opacityGroup.style.display = isNcdrLayerEnabled() ? 'flex' : 'none';
+    }
+
+    if (opacityLabel) {
+        opacityLabel.innerText = activeTheme === 'temp' ? '高溫風險圖透明度' : 'NCDR 風險圖透明度';
     }
 
     if (opacityValue) {
-        opacityValue.innerText = `${Math.round(ncdrRiskOpacity * 100)}%`;
+        opacityValue.innerText = `${Math.round(riskMapOpacity * 100)}%`;
     }
 }
 
@@ -952,7 +957,7 @@ function setupUIControls() {
             if (modeGroup) {
                 modeGroup.style.display = activeTheme === 'flood' ? 'block' : 'none';
             }
-            updateNcdrOpacityControl();
+            updateRiskOpacityControl();
             
             // Safety scenario shift
             if (activeTheme === 'flood') {
@@ -988,7 +993,7 @@ function setupUIControls() {
         });
     };
     syncFloodLayerButtons();
-    updateNcdrOpacityControl();
+    updateRiskOpacityControl();
 
     modeButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1002,7 +1007,7 @@ function setupUIControls() {
 
             activeFloodLayers[mode] = !activeFloodLayers[mode];
             syncFloodLayerButtons();
-            updateNcdrOpacityControl();
+            updateRiskOpacityControl();
 
             if (activeFloodLayers.wra && !activeFloodLayers.ncdr) {
                 if (activeScenario !== 'gwl15' && activeScenario !== 'gwl20') {
@@ -1054,12 +1059,12 @@ function setupUIControls() {
         });
     }
 
-    // 4. NCDR opacity slider
-    const ncdrOpacitySlider = document.getElementById('slider-ncdr-opacity');
-    if (ncdrOpacitySlider) {
-        ncdrOpacitySlider.addEventListener('input', (e) => {
-            ncdrRiskOpacity = parseFloat(e.target.value);
-            updateNcdrOpacityControl();
+    // 4. Risk-map opacity slider (shared by NCDR flood risk and high-temperature risk overlays)
+    const riskOpacitySlider = document.getElementById('slider-risk-opacity');
+    if (riskOpacitySlider) {
+        riskOpacitySlider.addEventListener('input', (e) => {
+            riskMapOpacity = parseFloat(e.target.value);
+            updateRiskOpacityControl();
             updateLayers();
         });
     }

@@ -86,12 +86,12 @@
                     </div>
                 </div>
 
-                <div class="control-group" id="ncdr-opacity-group">
-                    <label class="group-label opacity-control-label" for="slider-ncdr-opacity">
-                        <span>NCDR 風險圖透明度</span>
-                        <span id="val-ncdr-opacity">70%</span>
+                <div class="control-group" id="risk-opacity-group">
+                    <label class="group-label opacity-control-label" for="slider-risk-opacity">
+                        <span id="risk-opacity-label">NCDR 風險圖透明度</span>
+                        <span id="val-risk-opacity">70%</span>
                     </label>
-                    <input type="range" id="slider-ncdr-opacity" class="control-range" min="0.1" max="1" step="0.05" value="0.7" aria-label="NCDR 風險圖透明度">
+                    <input type="range" id="slider-risk-opacity" class="control-range" min="0.1" max="1" step="0.05" value="0.7" aria-label="風險圖透明度">
                 </div>
 
                 <div class="control-group">
@@ -127,29 +127,35 @@
             </section>
 
             <!-- Calibration Panel -->
-            <section class="chart-section" id="calibration-widget" style="margin-top: 15px; padding-bottom: 10px;">
-                <h3 class="section-title"><i class="fa-solid fa-compass"></i> 開發者圖資校正工具</h3>
-                <div class="control-group" style="margin-bottom: 10px;">
-                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
-                        經度偏移 (Lon Shift): <span id="val-lon-shift" style="color: #60a5fa; font-family: monospace;">0.00000</span>
-                    </label>
-                    <input type="range" id="slider-lon-shift" min="-0.04" max="0.04" step="0.0001" value="0.0" style="width: 100%; cursor: pointer;">
-                </div>
-                <div class="control-group" style="margin-bottom: 10px;">
-                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
-                        緯度偏移 (Lat Shift): <span id="val-lat-shift" style="color: #60a5fa; font-family: monospace;">0.00000</span>
-                    </label>
-                    <input type="range" id="slider-lat-shift" min="-0.04" max="0.04" step="0.0001" value="0.0" style="width: 100%; cursor: pointer;">
-                </div>
-                <div class="control-group" style="margin-bottom: 10px;">
-                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
-                        縮放比例 (Scale): <span id="val-scale" style="color: #60a5fa; font-family: monospace;">1.00000</span>
-                    </label>
-                    <input type="range" id="slider-scale" min="0.95" max="1.05" step="0.0001" value="1.0" style="width: 100%; cursor: pointer;">
-                </div>
-                <div style="font-size: 10px; color: #a1a1aa; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
-                    拖曳滑桿即時平移地圖邊界。<br>
-                    <strong>請協助尋找讓邊界與道路底圖最契合之數值。</strong>
+            <section class="chart-section calibration-widget" id="calibration-widget">
+                <input type="checkbox" id="toggle-calibration" class="calibration-toggle" aria-controls="calibration-panel">
+                <label class="section-title calibration-toggle-label" for="toggle-calibration">
+                    <span class="calibration-toggle-title"><i class="fa-solid fa-compass"></i> 開發者圖資校正工具</span>
+                    <span class="calibration-toggle-hint"><i class="fa-solid fa-chevron-down"></i></span>
+                </label>
+                <div class="calibration-panel" id="calibration-panel">
+                    <div class="control-group calibration-control">
+                        <label class="calibration-control-label">
+                            經度偏移 (Lon Shift): <span id="val-lon-shift" class="calibration-value">0.00000</span>
+                        </label>
+                        <input type="range" id="slider-lon-shift" class="calibration-range" min="-0.04" max="0.04" step="0.0001" value="0.0">
+                    </div>
+                    <div class="control-group calibration-control">
+                        <label class="calibration-control-label">
+                            緯度偏移 (Lat Shift): <span id="val-lat-shift" class="calibration-value">0.00000</span>
+                        </label>
+                        <input type="range" id="slider-lat-shift" class="calibration-range" min="-0.04" max="0.04" step="0.0001" value="0.0">
+                    </div>
+                    <div class="control-group calibration-control">
+                        <label class="calibration-control-label">
+                            縮放比例 (Scale): <span id="val-scale" class="calibration-value">1.00000</span>
+                        </label>
+                        <input type="range" id="slider-scale" class="calibration-range" min="0.95" max="1.05" step="0.0001" value="1.0">
+                    </div>
+                    <div class="calibration-help">
+                        拖曳滑桿即時平移地圖邊界。<br>
+                        <strong>請協助尋找讓邊界與道路底圖最契合之數值。</strong>
+                    </div>
                 </div>
             </section>
         </aside>
