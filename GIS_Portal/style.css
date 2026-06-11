@@ -325,10 +325,10 @@ body, html {
     font-weight: 600;
     color: var(--text-secondary);
     margin-top: 6px;
-    max-width: 132px;
+    max-width: none;
     line-height: 1.25;
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: nowrap;
     transition: all 0.3s ease;
 }
 
