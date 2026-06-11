@@ -217,7 +217,7 @@ body, html {
     gap: 12px;
 }
 
-#val-ncdr-opacity {
+#val-risk-opacity {
     color: var(--text-primary);
     font-family: var(--font-heading);
     font-weight: 700;
@@ -378,11 +378,107 @@ body, html {
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 16px;
-    min-height: 200px;
+    min-height: 400px;
 }
 
 .daycare-list-section .section-title {
     justify-content: space-between;
+}
+
+
+/* Collapsible calibration panel */
+.calibration-widget {
+    margin-top: 15px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.calibration-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.calibration-toggle-label {
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 16px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.calibration-toggle-title,
+.calibration-toggle-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calibration-toggle-hint {
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.calibration-toggle-hint i {
+    transition: transform 0.2s ease;
+}
+
+.calibration-panel {
+    display: none;
+    padding: 0 16px 16px;
+}
+
+.calibration-toggle:checked ~ .calibration-panel {
+    display: block;
+}
+
+.calibration-toggle:checked + .calibration-toggle-label .calibration-toggle-hint {
+    color: var(--primary);
+}
+
+.calibration-toggle:checked + .calibration-toggle-label .calibration-toggle-hint i {
+    transform: rotate(180deg);
+}
+
+.calibration-toggle:checked + .calibration-toggle-label .calibration-toggle-hint::after {
+    content: '收合';
+}
+
+.calibration-toggle:not(:checked) + .calibration-toggle-label .calibration-toggle-hint::after {
+    content: '展開';
+}
+
+.calibration-control {
+    margin-bottom: 10px;
+}
+
+.calibration-control-label {
+    display: block;
+    font-size: 11px;
+    color: #e4e4e7;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.calibration-value {
+    color: #60a5fa;
+    font-family: monospace;
+}
+
+.calibration-range {
+    width: 100%;
+    cursor: pointer;
+}
+
+.calibration-help {
+    font-size: 10px;
+    color: #a1a1aa;
+    line-height: 1.4;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 6px;
 }
 
 #town-selected-name {
