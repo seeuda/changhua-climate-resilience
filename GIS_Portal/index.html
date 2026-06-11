@@ -4,32 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>彰化縣日間照顧機構氣候變遷調適決策支援系統</title>
-
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-
+    
     <!-- FontAwesome for premium icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-
-    <script>
-        (function(){
-            function getStoredTheme() {
-                try {
-                    const theme = window.localStorage.getItem('cool-color-theme');
-                    return theme === 'light' || theme === 'dark' ? theme : null;
-                } catch (error) {
-                    return null;
-                }
-            }
-            document.documentElement.dataset.colorTheme = getStoredTheme() || 'dark';
-        })();
-    </script>
-
+    
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="style.css?v=1.0.0">
 </head>
@@ -47,23 +33,13 @@
                     <i class="fa-solid fa-chevron-down" id="mobile-toggle-icon"></i>
                 </div>
             </div>
-
-            <div style="padding: 0 16px 12px 16px; border-bottom: 1px solid var(--subtle-divider); margin-bottom: 10px;">
-                <a href="../index.html" style="color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='var(--text-secondary)';">
+            
+            <div style="padding: 0 16px 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px;">
+                <a href="../index.html" style="color: #94a3b8; text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='#818cf8';" onmouseout="this.style.color='#94a3b8';">
                     <i class="fa-solid fa-arrow-left"></i> 返回「C.O.O.L. 彰化」成果展示大廳
                 </a>
             </div>
-
-            <!-- Color Theme Control -->
-            <section class="control-section theme-control-section">
-                <h3 class="section-title"><i class="fa-solid fa-palette"></i> 色彩佈景主題</h3>
-                <label class="group-label" for="color-theme-select">選擇顯示配色</label>
-                <select id="color-theme-select" class="theme-select" aria-label="選擇色彩佈景主題">
-                    <option value="dark">深色展示</option>
-                    <option value="light">亮色閱讀</option>
-                </select>
-            </section>
-
+            
             <!-- Statistical Cards -->
             <section class="stats-section">
                 <div class="stat-card total-centers">
@@ -76,7 +52,7 @@
                 <div class="stat-card high-risk-centers">
                     <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     <div class="stat-info">
-                        <span class="stat-label">高風險警戒日照 (Lv.4-5)</span>
+                        <span class="stat-label">警戒等級日照機構 (Lv.4-5)</span>
                         <span class="stat-value" id="val-high-risk">--</span>
                     </div>
                 </div>
@@ -85,7 +61,7 @@
             <!-- Map Control Layer Switcher -->
             <section class="control-section">
                 <h3 class="section-title"><i class="fa-solid fa-sliders"></i> 圖資切換與情境模擬</h3>
-
+                
                 <div class="control-group">
                     <label class="group-label">分析主題</label>
                     <div class="toggle-buttons" id="theme-selector">
@@ -99,7 +75,7 @@
                 </div>
 
                 <div class="control-group" id="flood-mode-group">
-                    <label class="group-label">淹水圖資套疊（可複選）</label>
+                    <label class="group-label">淹水分析模式</label>
                     <div class="toggle-buttons" id="flood-mode-selector">
                         <button class="toggle-btn active" data-mode="ncdr">
                             <i class="fa-solid fa-map"></i> NCDR 鄉鎮風險
@@ -110,12 +86,16 @@
                     </div>
                 </div>
 
-                <div class="control-group" id="risk-opacity-group">
-                    <label class="group-label opacity-control-label" for="slider-risk-opacity">
-                        <span id="risk-opacity-label">NCDR 風險圖透明度</span>
-                        <span id="val-risk-opacity">70%</span>
-                    </label>
-                    <input type="range" id="slider-risk-opacity" class="control-range" min="0.1" max="1" step="0.05" value="0.7" aria-label="風險圖透明度">
+                <div class="control-group" id="temp-mode-group" style="display: none;">
+                    <label class="group-label">高溫風險模式</label>
+                    <div class="toggle-buttons" id="temp-mode-selector">
+                        <button class="toggle-btn active" data-mode="mean">
+                            <i class="fa-solid fa-scale-balanced"></i> 均權平均風險
+                        </button>
+                        <button class="toggle-btn" data-mode="max">
+                            <i class="fa-solid fa-temperature-half"></i> 最大值風險
+                        </button>
+                    </div>
                 </div>
 
                 <div class="control-group">
@@ -124,7 +104,7 @@
                         <div class="timeline-track"></div>
                         <div class="timeline-step active" data-scenario="current" style="left: 0%;">
                             <span class="step-dot"></span>
-                            <span class="step-label">現況基準(Baseline) </span>
+                            <span class="step-label">現況基準 (Baseline)</span>
                         </div>
                         <div class="timeline-step" data-scenario="future" style="left: 100%;">
                             <span class="step-dot"></span>
@@ -151,35 +131,29 @@
             </section>
 
             <!-- Calibration Panel -->
-            <section class="chart-section calibration-widget" id="calibration-widget">
-                <input type="checkbox" id="toggle-calibration" class="calibration-toggle" aria-controls="calibration-panel">
-                <label class="section-title calibration-toggle-label" for="toggle-calibration">
-                    <span class="calibration-toggle-title"><i class="fa-solid fa-compass"></i> 開發者圖資校正工具</span>
-                    <span class="calibration-toggle-hint"><i class="fa-solid fa-chevron-down"></i></span>
-                </label>
-                <div class="calibration-panel" id="calibration-panel">
-                    <div class="control-group calibration-control">
-                        <label class="calibration-control-label">
-                            經度偏移 (Lon Shift): <span id="val-lon-shift" class="calibration-value">0.00000</span>
-                        </label>
-                        <input type="range" id="slider-lon-shift" class="calibration-range" min="-0.04" max="0.04" step="0.0001" value="0.0">
-                    </div>
-                    <div class="control-group calibration-control">
-                        <label class="calibration-control-label">
-                            緯度偏移 (Lat Shift): <span id="val-lat-shift" class="calibration-value">0.00000</span>
-                        </label>
-                        <input type="range" id="slider-lat-shift" class="calibration-range" min="-0.04" max="0.04" step="0.0001" value="0.0">
-                    </div>
-                    <div class="control-group calibration-control">
-                        <label class="calibration-control-label">
-                            縮放比例 (Scale): <span id="val-scale" class="calibration-value">1.00000</span>
-                        </label>
-                        <input type="range" id="slider-scale" class="calibration-range" min="0.95" max="1.05" step="0.0001" value="1.0">
-                    </div>
-                    <div class="calibration-help">
-                        拖曳滑桿即時平移地圖邊界。<br>
-                        <strong>請協助尋找讓邊界與道路底圖最契合之數值。</strong>
-                    </div>
+            <section class="chart-section" id="calibration-widget" style="margin-top: 15px; padding-bottom: 10px;">
+                <h3 class="section-title"><i class="fa-solid fa-compass"></i> 開發者圖資校正工具</h3>
+                <div class="control-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
+                        經度偏移 (Lon Shift): <span id="val-lon-shift" style="color: #60a5fa; font-family: monospace;">0.00000</span>
+                    </label>
+                    <input type="range" id="slider-lon-shift" min="-0.04" max="0.04" step="0.0001" value="0.0" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="control-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
+                        緯度偏移 (Lat Shift): <span id="val-lat-shift" style="color: #60a5fa; font-family: monospace;">0.00000</span>
+                    </label>
+                    <input type="range" id="slider-lat-shift" min="-0.04" max="0.04" step="0.0001" value="0.0" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="control-group" style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 11px; color: #e4e4e7; margin-bottom: 4px; font-weight: 500;">
+                        縮放比例 (Scale): <span id="val-scale" style="color: #60a5fa; font-family: monospace;">1.00000</span>
+                    </label>
+                    <input type="range" id="slider-scale" min="0.95" max="1.05" step="0.0001" value="1.0" style="width: 100%; cursor: pointer;">
+                </div>
+                <div style="font-size: 10px; color: #a1a1aa; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
+                    拖曳滑桿即時平移地圖邊界。<br>
+                    <strong>請協助尋找讓邊界與道路底圖最契合之數值。</strong>
                 </div>
             </section>
         </aside>
@@ -187,7 +161,7 @@
         <!-- Main Map Area -->
         <main class="map-wrapper">
             <div id="map"></div>
-
+            
             <!-- Map Info Widget -->
             <div class="map-info-widget" id="info-widget">
                 <h4><i class="fa-solid fa-location-crosshairs"></i> 滑鼠懸停行政區資訊</h4>
