@@ -813,19 +813,19 @@ function updateInfoWidget(props) {
                 <div class="hover-town-title">${props.town_name}</div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">強度危害度 (Intensity Hazard)</span>
-                    <span class="hover-stat-val risk-badge badge-${hazTempVal}">第 ${hazTempVal} 級 (Level ${hazTempVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${hazTempVal}">第 ${hazTempVal} 級</span>
                 </div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">持續危害度 (Duration Hazard)</span>
-                    <span class="hover-stat-val risk-badge badge-${hazDurVal}">第 ${hazDurVal} 級 (Level ${hazDurVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${hazDurVal}">第 ${hazDurVal} 級</span>
                 </div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">脆弱度等級 (Vulnerability)</span>
-                    <span class="hover-stat-val risk-badge badge-${vulVal}">第 ${vulVal} 級 (Level ${vulVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${vulVal}">第 ${vulVal} 級</span>
                 </div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">綜合風險等級 (Risk)</span>
-                    <span class="hover-stat-val risk-badge badge-${riskVal}">第 ${riskVal} 級 (Level ${riskVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${riskVal}">第 ${riskVal} 級</span>
                 </div>
                 <div class="hover-stat-row" style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
                     <span class="hover-stat-label">轄區內日照機構數</span>
@@ -838,15 +838,15 @@ function updateInfoWidget(props) {
                 <div class="hover-town-title">${props.town_name}</div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">危害度等級 (Hazard)</span>
-                    <span class="hover-stat-val risk-badge badge-${hazVal}">第 ${hazVal} 級 (Level ${hazVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${hazVal}">第 ${hazVal} 級</span>
                 </div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">脆弱度等級 (Vulnerability)</span>
-                    <span class="hover-stat-val risk-badge badge-${vulVal}">第 ${vulVal} 級 (Level ${vulVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${vulVal}">第 ${vulVal} 級</span>
                 </div>
                 <div class="hover-stat-row">
                     <span class="hover-stat-label">綜合風險等級 (Risk)</span>
-                    <span class="hover-stat-val risk-badge badge-${riskVal}">第 ${riskVal} 級 (Level ${riskVal})</span>
+                    <span class="hover-stat-val risk-badge badge-${riskVal}">第 ${riskVal} 級</span>
                 </div>
                 <div class="hover-stat-row" style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
                     <span class="hover-stat-label">轄區內日照機構數</span>
