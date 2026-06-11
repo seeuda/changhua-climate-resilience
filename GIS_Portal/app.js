@@ -1137,11 +1137,11 @@ function updateLegendUI() {
     const riskLegend = `
         <div class="legend-title">綜合風險指標等級</div>
         <div class="legend-scale">
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[1]}"></span> <span>極低風險 (Level 1)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[2]}"></span> <span>低風險 (Level 2)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[1]}"></span> <span>低風險 (Level 1)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[2]}"></span> <span>中低風險 (Level 2)</span></div>
             <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[3]}"></span> <span>中等風險 (Level 3)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[4]}"></span> <span>高風險 (Level 4)</span></div>
-            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[5]}"></span> <span>極高風險 (Level 5)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[4]}"></span> <span>中高風險 (Level 4)</span></div>
+            <div class="legend-item"><span class="legend-color-box" style="background:${riskColors[5]}"></span> <span>高風險 (Level 5)</span></div>
         </div>
     `;
 
