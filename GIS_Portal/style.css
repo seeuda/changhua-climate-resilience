@@ -95,6 +95,7 @@
     --secondary: #047857;
     --control-active-text: #ffffff;
     --timeline-track: #9ca3af;
+    /* Tag print colors live in @media print because runtime themes only use dark/light. */
 }
 
 /* ==========================================================================
