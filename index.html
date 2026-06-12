@@ -106,6 +106,31 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .insight p{font-size:.85rem;line-height:1.8;color:var(--insight-text)}
 .insight .highlight{color:#fbbf24;font-weight:700}
 
+
+/* Future vision panel */
+.future-vision{position:relative;grid-column:1/-1;overflow:hidden;border:1px solid rgba(129,140,248,.32);background:linear-gradient(135deg,rgba(30,27,75,.96),rgba(30,41,59,.96));box-shadow:0 18px 48px rgba(15,23,42,.28)}
+.future-vision::before{content:'';position:absolute;inset:-40% auto auto -12%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(129,140,248,.45),transparent 68%);filter:blur(8px);opacity:.75}
+.future-vision::after{content:'';position:absolute;right:-120px;bottom:-160px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.28),transparent 68%);filter:blur(10px)}
+.future-vision .card-body{position:relative;z-index:1;padding:30px}
+.future-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;padding:5px 12px;border:1px solid rgba(196,181,253,.28);border-radius:999px;background:rgba(255,255,255,.08);color:#c4b5fd;font-size:.76rem;font-weight:700;letter-spacing:.04em}
+.future-title{margin-bottom:8px!important;color:#fff!important;font-size:clamp(1.2rem,2.4vw,1.6rem)!important;letter-spacing:.02em}
+.future-lead{max-width:880px!important;margin:0 0 22px!important;color:#dbeafe!important;font-size:.95rem!important;line-height:1.85!important}
+.future-roadmap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
+.future-step{padding:18px;border:1px solid rgba(148,163,184,.24);border-radius:14px;background:rgba(15,23,42,.45);backdrop-filter:blur(10px)}
+.future-step .icon{display:grid;place-items:center;width:38px;height:38px;margin-bottom:12px;border-radius:12px;background:linear-gradient(135deg,rgba(99,102,241,.95),rgba(37,99,235,.9));box-shadow:0 10px 22px rgba(79,70,229,.28);font-size:1.15rem}
+.future-step h4{margin-bottom:6px;color:#f8fafc;font-size:.95rem}
+.future-step p{color:#cbd5e1!important;font-size:.8rem!important;line-height:1.65!important}
+.future-commitment{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:20px;padding:16px 18px;border-radius:14px;background:linear-gradient(90deg,rgba(99,102,241,.24),rgba(37,99,235,.18));border:1px solid rgba(129,140,248,.26)}
+.future-commitment strong{display:block;margin-bottom:4px;color:#fff;font-size:.95rem}
+.future-commitment span{color:#cbd5e1;font-size:.82rem;line-height:1.6}
+.future-metric{min-width:150px;text-align:center;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-weight:800}
+.future-metric small{display:block;margin-top:2px;color:#bfdbfe;font-size:.72rem;font-weight:500}
+:root[data-color-theme="light"] .future-vision{border-color:#bfdbfe;background:linear-gradient(135deg,#312e81,#1d4ed8);box-shadow:0 18px 45px rgba(37,99,235,.18)}
+:root[data-color-theme="print"] .future-vision{background:#fff!important;border-color:var(--border);box-shadow:none;color:#111827}
+:root[data-color-theme="print"] .future-eyebrow,:root[data-color-theme="print"] .future-title,:root[data-color-theme="print"] .future-lead,:root[data-color-theme="print"] .future-step h4,:root[data-color-theme="print"] .future-step p,:root[data-color-theme="print"] .future-commitment strong,:root[data-color-theme="print"] .future-commitment span,:root[data-color-theme="print"] .future-metric,:root[data-color-theme="print"] .future-metric small{color:#111827!important}
+:root[data-color-theme="print"] .future-step,:root[data-color-theme="print"] .future-commitment,:root[data-color-theme="print"] .future-metric,:root[data-color-theme="print"] .future-eyebrow{background:#fff;border-color:var(--border);box-shadow:none}
+@media (max-width:820px){.future-roadmap{grid-template-columns:1fr}.future-commitment{align-items:flex-start;flex-direction:column}.future-metric{width:100%}}
+
 /* Stats */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
 .stat{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
@@ -135,6 +160,11 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
 @media print{
   :root{color-scheme:light;--bg:#fff;--surface:#fff;--card:#fff;--text:#111827;--muted:#374151;--border:#d1d5db;--image-bg:#fff;--accent:#1d4ed8;--accent2:#0f766e;--hero-bg:#fff;--hero-sub:#374151;--hero-badge-bg:#fff;--hero-badge-border:#d1d5db;--hero-badge-text:#111827;--insight-bg:#fff;--insight-border:#d1d5db;--insight-heading:#111827;--insight-text:#111827;--shadow-accent:rgba(0,0,0,0)}
   .tabs,.theme-picker,.hero-theme-picker,.lightbox{display:none!important}.hero{padding:24px 16px}.hero::after{display:none}.section{display:block!important;page-break-inside:auto}.card,.insight,.stat{break-inside:avoid;box-shadow:none!important}.card:hover{transform:none}body{background:#fff!important;color:#111827!important}
+  .future-vision{background:#fff!important;border-color:#d1d5db!important;box-shadow:none!important;color:#111827!important}
+  .future-vision::before,.future-vision::after{display:none!important}
+  .future-eyebrow,.future-step,.future-commitment,.future-metric{background:#fff!important;border-color:#d1d5db!important;box-shadow:none!important}
+  .future-title,.future-lead,.future-step h4,.future-step p,.future-commitment strong,.future-commitment span,.future-metric,.future-metric small{color:#111827!important}
+  .future-step .icon{background:#fff!important;border:1px solid #d1d5db;box-shadow:none!important}
 }
 </style>
 </head>
@@ -316,9 +346,9 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
   <div class="insight">
     <h3>🚀 治理模式轉型：從「經驗法則」到「數據驅動」</h3>
     <p>
-    本計畫不僅是數位地圖的建置，更是行政流程革新的嘗試。透過風險圖資的視覺化，我們推以下三大治理目標：<br><br>
+    本計畫不僅是數位地圖的建置，更是行政流程革新的嘗試。透過風險圖資的視覺化，我們推動以下三大治理目標：<br><br>
     <strong>1. 精準資源投放</strong>：根據風險套疊結果，優先針對高風險熱區進行避災設施升級與長照據點補強，將資源精準配置於最脆弱的角落。<br><br>
-    <strong>2. 科學預警決策</strong>：在極端氣候情境下，相局處可依據 <span class="highlight">1.5°C/2°C/4°C 溫升模擬圖</span>，預先規劃高風險案場的撤離路徑、緊急物資儲備量，建立具備時間與空間維度的預警機制。<br><br>
+    <strong>2. 科學預警決策</strong>：在極端氣候情境下，相關局處可依據 <span class="highlight">1.5°C/2°C/4°C 溫升模擬圖</span>，預先規劃高風險案場的撤離路徑、緊急物資儲備量，建立具備時間與空間維度的預警機制。<br><br>
     <strong>3. 跨局處協同治理</strong>：提供各局處統一的空間數據基座，確保維生設施韌性與社會照顧體系能「空間對齊」。例如：在加強橋梁與地下道韌性的同時，同步優化鄰近高齡人口區的疏散效率。
     </p>
   </div>
@@ -330,13 +360,39 @@ footer{text-align:center;padding:32px;color:var(--muted);font-size:.75rem;border
   </div>
 
   <div class="card-grid">
-    <div class="card" style="grid-column: 1 / -1; background: linear-gradient(90deg, #1e1b4b, #1e293b);">
-      <div class="card-body" style="text-align: center; padding: 32px;">
-        <h3 style="color:var(--accent2); font-size: 1.2rem;">🌟 未來展望：數據驅動的高齡韌性城市</h3>
-        <p style="max-width: 800px; margin: 12px auto; font-size: 0.9rem;">
-          <br>
-          我們目標將「空間正義」落實在氣候調適政策中，確保每一位彰化長者在變遷的氣候下，都能獲得最堅實的守護。
+    <div class="card future-vision">
+      <div class="card-body">
+        <div class="future-eyebrow">🌟 NEXT STEP</div>
+        <h3 class="future-title">未來展望：數據驅動的高齡韌性城市</h3>
+        <p class="future-lead">
+          以 88 處日照中心與鄉鎮風險圖資為起點，將「空間正義」落實到氣候調適政策中，讓預警、資源與照護能在災前完成部署。
         </p>
+
+        <div class="future-roadmap" aria-label="未來展望推動路徑">
+          <div class="future-step">
+            <div class="icon">🧭</div>
+            <h4>風險熱區常態監測</h4>
+            <p>整合淹水、熱危害與高齡脆弱度，建立可定期更新的調適優先序。</p>
+          </div>
+          <div class="future-step">
+            <div class="icon">🤝</div>
+            <h4>跨局處協作劇本</h4>
+            <p>把社福、工務、消防與環保資料對齊，形成撤離、補給與設施韌性的共同作業圖。</p>
+          </div>
+          <div class="future-step">
+            <div class="icon">🛡️</div>
+            <h4>長者守護服務升級</h4>
+            <p>優先補強高風險照護據點，協助每一位彰化長者在氣候變遷下獲得穩定守護。</p>
+          </div>
+        </div>
+
+        <div class="future-commitment">
+          <div>
+            <strong>從展示到決策，讓圖資真正進入治理流程。</strong>
+            <span>下一步將以互動決策輔助系統支援情境演練、資源盤點與調適成效追蹤。</span>
+          </div>
+          <div class="future-metric">88 處<small>日照中心風險套疊</small></div>
+        </div>
       </div>
     </div>
   </div>
